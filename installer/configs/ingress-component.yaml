@@ -1,0 +1,4 @@
+pod:
+  replicas:
+    ingress: 1
+    error_page: 1
