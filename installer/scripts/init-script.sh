@@ -13,3 +13,6 @@ for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g');
 
 # Deploy Ingress
 /etc/kupenstack/ingress.sh
+
+# Deploy MariaDB
+/etc/kupenstack/mariadb.sh

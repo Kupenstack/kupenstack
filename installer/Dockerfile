@@ -42,6 +42,8 @@ COPY configs/ingress-kube-system.yaml /tmp/ingress-kube-system.yaml
 COPY configs/ingress-component.yaml /tmp/ingress-component.yaml
 COPY scripts/ingress.sh /etc/kupenstack/ingress.sh
 
+# mariaDB
+COPY configs/mariadb.yaml /tmp/mariadb.yaml
 
 # Setup
 RUN pip3 install yq
@@ -49,9 +51,11 @@ RUN apt -y install jq
 
 COPY scripts/init-script.sh /etc/kupenstack/init-script.sh
 COPY scripts/helm.sh /etc/kupenstack/helm.sh
+COPY scripts/mariadb.sh /etc/kupenstack/mariadb.sh
 
 RUN chmod +x /etc/kupenstack/init-script.sh
 RUN chmod +x /etc/kupenstack/helm.sh
 RUN chmod +x /etc/kupenstack/ingress.sh
+RUN chmod +x /etc/kupenstack/mariadb.sh
 
 CMD ["/etc/kupenstack/init-script.sh"]

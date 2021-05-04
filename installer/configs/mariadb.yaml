@@ -1,4 +1,4 @@
 pod:
   replicas:
+    server: 1
     ingress: 1
-    error_page: 1

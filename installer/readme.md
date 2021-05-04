@@ -31,7 +31,7 @@ docker container run -d --name kupenstack_installer -v $(pwd)/config:/root/.kube
   kind create cluster
   
   # prepare kubeconfig file
-  cp $HOME/.kube/config $(pwd)/config && sed -i -e 's/https:\/\/127.0.0.1:40525/https:\/\/kind-control-plane:6443/g' $(pwd)/config
+  cp $HOME/.kube/config $(pwd)/config && sed -i -r 's/https:\/\/127.0.0.1:([0-9]*)/https:\/\/kind-control-plane:6443/g' $(pwd)/config
   
   # prepare configuration for kupenstack installation
   tee $(pwd)/kupenstack.yaml << EOF
