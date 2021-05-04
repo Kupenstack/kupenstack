@@ -16,3 +16,16 @@ for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g');
 
 # Deploy MariaDB
 /etc/kupenstack/mariadb.sh
+
+# Deploy Rabbitmq
+/etc/kupenstack/rabbitmq.sh
+
+# Deploy Memcached
+/etc/kupenstack/memcached.sh
+
+# Deploy Keystone
+/etc/kupenstack/keystone.sh
+
+# Deploy Horizon
+/etc/kupenstack/horizon.sh
+

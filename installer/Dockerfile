@@ -52,10 +52,18 @@ RUN apt -y install jq
 COPY scripts/init-script.sh /etc/kupenstack/init-script.sh
 COPY scripts/helm.sh /etc/kupenstack/helm.sh
 COPY scripts/mariadb.sh /etc/kupenstack/mariadb.sh
+COPY scripts/rabbitmq.sh /etc/kupenstack/rabbitmq.sh
+COPY scripts/memcached.sh /etc/kupenstack/memcached.sh
+COPY scripts/keystone.sh /etc/kupenstack/keystone.sh
+COPY scripts/horizon.sh /etc/kupenstack/horizon.sh
 
 RUN chmod +x /etc/kupenstack/init-script.sh
 RUN chmod +x /etc/kupenstack/helm.sh
 RUN chmod +x /etc/kupenstack/ingress.sh
 RUN chmod +x /etc/kupenstack/mariadb.sh
+RUN chmod +x /etc/kupenstack/rabbitmq.sh
+RUN chmod +x /etc/kupenstack/memcached.sh
+RUN chmod +x /etc/kupenstack/keystone.sh
+RUN chmod +x /etc/kupenstack/horizon.sh
 
 CMD ["/etc/kupenstack/init-script.sh"]
