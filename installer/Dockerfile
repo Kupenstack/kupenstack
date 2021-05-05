@@ -45,6 +45,10 @@ COPY scripts/ingress.sh /etc/kupenstack/ingress.sh
 # mariaDB
 COPY configs/mariadb.yaml /tmp/mariadb.yaml
 
+# glance
+COPY configs/glance.yaml /tmp/glance.yaml
+COPY configs/glance-pv.yaml /tmp/glance-pv.yaml
+
 # Setup
 RUN pip3 install yq
 RUN apt -y install jq
@@ -56,6 +60,7 @@ COPY scripts/rabbitmq.sh /etc/kupenstack/rabbitmq.sh
 COPY scripts/memcached.sh /etc/kupenstack/memcached.sh
 COPY scripts/keystone.sh /etc/kupenstack/keystone.sh
 COPY scripts/horizon.sh /etc/kupenstack/horizon.sh
+COPY scripts/glance.sh /etc/kupenstack/glance.sh
 
 RUN chmod +x /etc/kupenstack/init-script.sh
 RUN chmod +x /etc/kupenstack/helm.sh
@@ -65,5 +70,6 @@ RUN chmod +x /etc/kupenstack/rabbitmq.sh
 RUN chmod +x /etc/kupenstack/memcached.sh
 RUN chmod +x /etc/kupenstack/keystone.sh
 RUN chmod +x /etc/kupenstack/horizon.sh
+RUN chmod +x /etc/kupenstack/glance.sh
 
 CMD ["/etc/kupenstack/init-script.sh"]
