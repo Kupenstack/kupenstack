@@ -40,5 +40,8 @@ for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g');
 # Deploy Glance
 /etc/kupenstack/glance.sh
 
+# Deploy Compute-Kit(Libvirt, Placement, Nova, Neutron, Linux-Bridge)
+/etc/kupenstack/compute-kit.sh
+
 echo "Deployment Completed"
 

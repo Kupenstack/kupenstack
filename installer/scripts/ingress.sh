@@ -23,13 +23,6 @@ cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh openstack
 # Verify
 helm status ingress-openstack
 
-# Deploy ingress-ceph
-helm upgrade --install ingress-ceph ${HELM_CHART_ROOT_PATH}/ingress \
-  --namespace=ceph \
-  --values=/tmp/ingress-component.yaml
-
 # Wait for pods to get ready
 cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh ceph
 
-# Verify
-helm status ingress-ceph

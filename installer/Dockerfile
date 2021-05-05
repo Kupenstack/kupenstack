@@ -61,6 +61,7 @@ COPY scripts/memcached.sh /etc/kupenstack/memcached.sh
 COPY scripts/keystone.sh /etc/kupenstack/keystone.sh
 COPY scripts/horizon.sh /etc/kupenstack/horizon.sh
 COPY scripts/glance.sh /etc/kupenstack/glance.sh
+COPY scripts/compute-kit.sh /etc/kupenstack/compute-kit.sh
 
 RUN chmod +x /etc/kupenstack/init-script.sh
 RUN chmod +x /etc/kupenstack/helm.sh
@@ -71,5 +72,6 @@ RUN chmod +x /etc/kupenstack/memcached.sh
 RUN chmod +x /etc/kupenstack/keystone.sh
 RUN chmod +x /etc/kupenstack/horizon.sh
 RUN chmod +x /etc/kupenstack/glance.sh
+RUN chmod +x /etc/kupenstack/compute-kit.sh
 
 CMD ["/etc/kupenstack/init-script.sh"]
