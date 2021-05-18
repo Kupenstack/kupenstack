@@ -1,0 +1,15 @@
+domain: kupenstack.io
+layout:
+- go.kubebuilder.io/v3
+projectName: kupenstack
+repo: github.com/kupenstack/kupenstack
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kupenstack.io
+  kind: KeyPair
+  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  version: v1alpha1
+version: "3"

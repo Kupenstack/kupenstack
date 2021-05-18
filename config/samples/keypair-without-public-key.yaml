@@ -1,0 +1,5 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: KeyPair
+metadata:
+  name: keypair-sample-2
+
