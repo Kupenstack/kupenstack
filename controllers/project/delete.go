@@ -14,26 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package keypair
+package project
 
 import (
 	"context"
 
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
+	"github.com/gophercloud/gophercloud/openstack/identity/v3/projects"
 	coreV1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/utils"
 )
 
-func (r *Reconciler) delete(ctx context.Context, cr kstypes.KeyPair) error {
-	log := r.Log.WithValues("keypair", cr.Namespace+"/"+cr.Name)
+func (r *Reconciler) delete(ctx context.Context, cr coreV1.Namespace) (bool, error) {
+	log := r.Log.WithValues("project", cr.Namespace+"/"+cr.Name)
 
-	err := keypairs.Delete(r.OSclient, cr.Annotations[ExternalNameAnnotation]).ExtractErr()
+	if utils.ContainsString(getFinalizers(cr), kubernetesFinalizer) {
+		return false, nil
+	}
+
+	err := projects.Delete(r.OSclient, cr.Annotations[ExternalIDAnnotation]).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
-		return err
+		return false, err
 	}
 	log.Info(msgDeleteSuccessful)
 
@@ -44,11 +47,21 @@ func (r *Reconciler) delete(ctx context.Context, cr kstypes.KeyPair) error {
 	err = r.Update(ctx, &cr)
 	if err != nil {
 		log.Error(err, msgFinalizerRemoveFailed)
-		return err
+		return false, err
 	}
 
-	r.Eventf(&cr, coreV1.EventTypeNormal, "Deleted", "Keypair deleted.")
-	return nil
+	r.Eventf(&cr, coreV1.EventTypeNormal, "KupenstackDeleted", "Openstack project mapping deleted.")
+	return true, nil
+}
+
+// returns list of finailzers from namespace spec
+func getFinalizers(cr coreV1.Namespace) []string {
+
+	var finalizers []string
+	for _, finalizerName := range cr.Spec.Finalizers {
+		finalizers = append(finalizers, string(finalizerName))
+	}
+	return finalizers
 }
 
 func ignoreNotFoundError(err error) error {

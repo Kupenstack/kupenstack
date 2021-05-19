@@ -33,6 +33,7 @@ import (
 
 	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/controllers/keypair"
+	"github.com/kupenstack/kupenstack/controllers/project"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
 	//+kubebuilder:scaffold:imports
 )
@@ -82,6 +83,22 @@ func main() {
 	computeClient, err := openstack.GetComputeClient()
 	if err != nil {
 		setupLog.Error(err, "unable to establish connection with openstack")
+	}
+
+	identityClient, err := openstack.GetIdentityClient()
+	if err != nil {
+		setupLog.Error(err, "unable to establish connection with openstack")
+	}
+
+	if err = (&project.Reconciler{
+		Client:        mgr.GetClient(),
+		OSclient:      identityClient,
+		Log:           ctrl.Log.WithName("controllers").WithName("Project"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Project")
+		os.Exit(1)
 	}
 
 	if err = (&keypair.Reconciler{

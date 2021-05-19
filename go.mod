@@ -2,6 +2,8 @@ module github.com/kupenstack/kupenstack
 
 go 1.15
 
+replace github.com/kupenstack/kupenstack => ./
+
 require (
 	github.com/go-logr/logr v0.3.0
 	github.com/gophercloud/gophercloud v0.17.0

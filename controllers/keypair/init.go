@@ -20,17 +20,16 @@ import (
 	"context"
 	"encoding/base64"
 
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilname "k8s.io/apiserver/pkg/storage/names"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/keypairs"
 
 	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/utils"
 )
-
 
 func (r *Reconciler) init(ctx context.Context, cr kstypes.KeyPair) error {
 	log := r.Log.WithValues("keypair", cr.Namespace+"/"+cr.Name)
@@ -106,7 +105,6 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.KeyPair) error {
 	r.Eventf(&cr, coreV1.EventTypeNormal, "Created", "Keypair created.")
 	return nil
 }
-
 
 // Appends passed string with a random string suffix.
 func (r *Reconciler) generateName(name string) string {
