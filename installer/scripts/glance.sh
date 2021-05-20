@@ -7,10 +7,10 @@ make -C ${OPENSTACK_HELM_ROOT_PATH} glance
 kubectl apply -f /tmp/glance-pv.yaml
 
 helm upgrade --install glance ${OPENSTACK_HELM_ROOT_PATH}/glance \
-    --namespace=openstack \
+    --namespace=kupenstack \
     --values=/tmp/glance.yaml
 
 
 # wait for glance
-cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh openstack
+cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kupenstack
 

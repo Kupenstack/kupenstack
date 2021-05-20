@@ -16,7 +16,7 @@ network:
 EOF
 
 helm upgrade --install libvirt ${HELM_CHART_ROOT_PATH}/libvirt \
-  --namespace=openstack \
+  --namespace=kupenstack \
   --set conf.ceph.enabled=false \
   --values=/tmp/libvirt.yaml
 
@@ -29,7 +29,7 @@ helm upgrade --install libvirt ${HELM_CHART_ROOT_PATH}/libvirt \
 make -C ${OPENSTACK_HELM_ROOT_PATH} placement
 
 helm upgrade --install placement ${OPENSTACK_HELM_ROOT_PATH}/placement \
-    --namespace=openstack \
+    --namespace=kupenstack \
     --set pod.replicas.api=1
 
 
@@ -72,7 +72,7 @@ EOF
 
 make -C ${OPENSTACK_HELM_ROOT_PATH} nova
 
-helm upgrade --install nova ${OPENSTACK_HELM_ROOT_PATH}/nova --namespace=openstack \
+helm upgrade --install nova ${OPENSTACK_HELM_ROOT_PATH}/nova --namespace=kupenstack \
       --values=/tmp/nova.yaml \
       --set bootstrap.wait_for_computes.enabled=true \
       --set conf.ceph.enabled=false \
@@ -129,9 +129,9 @@ EOF
 
 
 helm upgrade --install neutron ${OPENSTACK_HELM_ROOT_PATH}/neutron \
-    --namespace=openstack \
+    --namespace=kupenstack \
     --values=/tmp/neutron.yaml
 
 # wait for everything
-cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh openstack
+cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kupenstack
 

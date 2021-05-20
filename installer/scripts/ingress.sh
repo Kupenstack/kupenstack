@@ -14,15 +14,13 @@ helm status ingress-kube-system
 
 # Deploy ingress-openstack
 helm upgrade --install ingress-openstack ${HELM_CHART_ROOT_PATH}/ingress \
-  --namespace=openstack \
+  --namespace=kupenstack \
   --values=/tmp/ingress-component.yaml 
 
 # Wait for pods to get ready
-cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh openstack
+cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kupenstack
 
 # Verify
 helm status ingress-openstack
 
-# Wait for pods to get ready
-cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh ceph
 

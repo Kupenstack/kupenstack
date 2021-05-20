@@ -1,0 +1,180 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: keypairs.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: KeyPair
+    listKind: KeyPairList
+    plural: keypairs
+    shortNames:
+    - kp
+    singular: keypair
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.usage.inUse
+      name: IN-USE
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    - jsonPath: .status.privateKey.secret
+      name: PRIVATE-KEY
+      priority: 1
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              publicKey:
+                description: Contains public key from ssh key pairs. This is an optional
+                  field. if not provided, it will be updated with a automatically
+                  generated ssh public key, and private key will be made avaible through
+                  secret referenced in status.
+                type: string
+            type: object
+          status:
+            properties:
+              id:
+                description: Unique Id at openstack
+                type: string
+              privateKey:
+                description: if publickey is not provided in spec on create, then
+                  privatekey field holds reference to k8s-secret that store base64
+                  encoded private key. secrets can be deleted when not needed.
+                properties:
+                  secret:
+                    description: Name of secret in same namespace.
+                    type: string
+                type: object
+              usage:
+                description: Contains list of all instances using it.
+                properties:
+                  inUse:
+                    description: set to true when keypair is being used by any instance.
+                    type: boolean
+                  instances:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - inUse
+                type: object
+            required:
+            - usage
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    controller-manager: kupenstack
+  name: kupenstack-control
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kupenstack-controller-manager
+  namespace: kupenstack-control
+  labels:
+    controller-manager: kupenstack
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+          controller-manager: kupenstack
+  template:
+    metadata:
+      labels:
+        controller-manager: kupenstack
+    spec:
+      initContainers:
+      - name: installer
+        image: parthyadav/kupenstack-installer:latest
+        volumeMounts:
+          - mountPath: /etc/kupenstack/auth/
+            name: kupenstack-config
+      containers:
+      - name: manager
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        imagePullPolicy: Always
+        image: parthyadav/kupenstack-controller:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+          - mountPath: /etc/kupenstack/auth/
+            name: kupenstack-config
+      serviceAccountName: kupenstack-admin
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: kupenstack-config
+          emptyDir: {}
+
+        
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kupenstack-admin
+subjects:
+- kind: ServiceAccount
+  name: kupenstack-admin
+  namespace: kupenstack-control
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kupenstack-admin
+  namespace: kupenstack-control

@@ -16,6 +16,21 @@ controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/kupenstack.yaml)
 for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-compute-node=enabled; done
 
 
+mkdir /etc/kupenstack/auth/openstack
+
+authUrl="http://keystone.kupenstack.svc.cluster.local/v3"
+username="admin"
+password="password"
+domain="Default"
+tenant="admin"
+
+echo $(echo $authUrl | base64 ) > /etc/kupenstack/auth/openstack/authUrl
+echo $(echo $username | base64 ) > /etc/kupenstack/auth/openstack/username
+echo $(echo $password | base64 ) > /etc/kupenstack/auth/openstack/password
+echo $(echo $domain | base64 ) > /etc/kupenstack/auth/openstack/domain
+echo $(echo $tenant | base64 ) > /etc/kupenstack/auth/openstack/tenant
+
+
 # Init Helm
 /etc/kupenstack/helm.sh
 

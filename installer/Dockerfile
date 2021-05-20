@@ -53,6 +53,8 @@ COPY configs/glance-pv.yaml /tmp/glance-pv.yaml
 RUN pip3 install yq
 RUN apt -y install jq
 
+COPY configs/kupenstack.yaml /etc/kupenstack/kupenstack.yaml
+
 COPY scripts/init-script.sh /etc/kupenstack/init-script.sh
 COPY scripts/helm.sh /etc/kupenstack/helm.sh
 COPY scripts/mariadb.sh /etc/kupenstack/mariadb.sh
@@ -74,4 +76,4 @@ RUN chmod +x /etc/kupenstack/horizon.sh
 RUN chmod +x /etc/kupenstack/glance.sh
 RUN chmod +x /etc/kupenstack/compute-kit.sh
 
-CMD ["/etc/kupenstack/init-script.sh"]
+ENTRYPOINT ["/etc/kupenstack/init-script.sh"]
