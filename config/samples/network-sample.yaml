@@ -1,0 +1,6 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: Network
+metadata:
+  name: network-sample
+spec:
+  cidr: 10.10.10.1/24

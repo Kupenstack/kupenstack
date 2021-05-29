@@ -132,3 +132,18 @@ func GetImageServiceClient() (*gophercloud.ServiceClient, error) {
 
 	return client, nil
 }
+
+func GetNetworkClient() (*gophercloud.ServiceClient, error) {
+
+	providerClient, err := GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := openstack.NewNetworkV2(providerClient, gophercloud.EndpointOpts{})
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

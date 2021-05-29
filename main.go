@@ -35,6 +35,7 @@ import (
 	"github.com/kupenstack/kupenstack/controllers/flavor"
 	"github.com/kupenstack/kupenstack/controllers/image"
 	"github.com/kupenstack/kupenstack/controllers/keypair"
+	"github.com/kupenstack/kupenstack/controllers/network"
 	"github.com/kupenstack/kupenstack/controllers/project"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
 	//+kubebuilder:scaffold:imports
@@ -97,6 +98,11 @@ func main() {
 		setupLog.Error(err, "unable to establish connection with openstack")
 	}
 
+	networkClient, err := openstack.GetNetworkClient()
+	if err != nil {
+		setupLog.Error(err, "unable to establish connection with openstack")
+	}
+
 	if err = (&project.Reconciler{
 		Client:        mgr.GetClient(),
 		OSclient:      identityClient,
@@ -136,6 +142,16 @@ func main() {
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Flavor")
+		os.Exit(1)
+	}
+	if err = (&network.Reconciler{
+		Client:        mgr.GetClient(),
+		OSclient:      networkClient,
+		Log:           ctrl.Log.WithName("controllers").WithName("Network"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Network")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
