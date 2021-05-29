@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/api/v1alpha1"
+	"github.com/kupenstack/kupenstack/controllers/flavor"
 	"github.com/kupenstack/kupenstack/controllers/image"
 	"github.com/kupenstack/kupenstack/controllers/keypair"
 	"github.com/kupenstack/kupenstack/controllers/project"
@@ -125,6 +126,16 @@ func main() {
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Image")
+		os.Exit(1)
+	}
+	if err = (&flavor.Reconciler{
+		Client:        mgr.GetClient(),
+		OSclient:      computeClient,
+		Log:           ctrl.Log.WithName("controllers").WithName("Flavor"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Flavor")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

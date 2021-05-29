@@ -1,34 +1,20 @@
-
----
+# permissions for end users to view flavors.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
-  name: manager-role
+  name: flavor-viewer-role
 rules:
 - apiGroups:
   - kupenstack.io
   resources:
   - flavors
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
-- apiGroups:
-  - kupenstack.io
-  resources:
-  - flavors/finalizers
-  verbs:
-  - update
 - apiGroups:
   - kupenstack.io
   resources:
   - flavors/status
   verbs:
   - get
-  - patch
-  - update

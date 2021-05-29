@@ -1,0 +1,13 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: Flavor
+metadata:
+  name: flavor-sample
+spec:
+  vcpu: 2
+  ram: 500
+  disk: 1
+  swap: 0
+  rxtx: "1.0"
+  ephemeral: 0
+
+

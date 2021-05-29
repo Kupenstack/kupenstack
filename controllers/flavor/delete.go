@@ -14,29 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package project
+package flavor
 
 import (
 	"context"
 
-	"github.com/gophercloud/gophercloud/openstack/identity/v3/projects"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/flavors"
 	coreV1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/utils"
 )
 
-func (r *Reconciler) delete(ctx context.Context, cr coreV1.Namespace) (bool, error) {
-	log := r.Log.WithValues("project", cr.Name)
+func (r *Reconciler) delete(ctx context.Context, cr kstypes.Flavor) error {
+	log := r.Log.WithValues("flavor", cr.Name)
 
-	if utils.ContainsString(getFinalizers(cr), kubernetesFinalizer) {
-		return false, nil
-	}
-
-	err := projects.Delete(r.OSclient, cr.Annotations[ExternalIDAnnotation]).ExtractErr()
+	err := flavors.Delete(r.OSclient, cr.Status.ID).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
-		return false, err
+		return err
 	}
 	log.Info(msgDeleteSuccessful)
 
@@ -47,21 +44,11 @@ func (r *Reconciler) delete(ctx context.Context, cr coreV1.Namespace) (bool, err
 	err = r.Update(ctx, &cr)
 	if err != nil {
 		log.Error(err, msgFinalizerRemoveFailed)
-		return false, err
+		return err
 	}
 
-	r.Eventf(&cr, coreV1.EventTypeNormal, "KupenstackDeleted", "Openstack project mapping deleted.")
-	return true, nil
-}
-
-// returns list of finailzers from namespace spec
-func getFinalizers(cr coreV1.Namespace) []string {
-
-	var finalizers []string
-	for _, finalizerName := range cr.Spec.Finalizers {
-		finalizers = append(finalizers, string(finalizerName))
-	}
-	return finalizers
+	r.Eventf(&cr, coreV1.EventTypeNormal, "Deleted", "Flavor deleted.")
+	return nil
 }
 
 func ignoreNotFoundError(err error) error {

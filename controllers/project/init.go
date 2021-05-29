@@ -28,7 +28,7 @@ import (
 )
 
 func (r *Reconciler) init(ctx context.Context, cr coreV1.Namespace) error {
-	log := r.Log.WithValues("project", cr.Namespace+"/"+cr.Name)
+	log := r.Log.WithValues("project", cr.Name)
 
 	createOpts := projects.CreateOpts{
 		Name:        r.generateName(cr.Name),
