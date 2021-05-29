@@ -12,4 +12,12 @@ resources:
   kind: KeyPair
   path: github.com/kupenstack/kupenstack/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kupenstack.io
+  kind: Image
+  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  version: v1alpha1
 version: "3"

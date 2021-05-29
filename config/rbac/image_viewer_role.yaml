@@ -1,34 +1,20 @@
-
----
+# permissions for end users to view images.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
-  name: manager-role
+  name: image-viewer-role
 rules:
 - apiGroups:
   - kupenstack.io
   resources:
   - images
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
-- apiGroups:
-  - kupenstack.io
-  resources:
-  - images/finalizers
-  verbs:
-  - update
 - apiGroups:
   - kupenstack.io
   resources:
   - images/status
   verbs:
   - get
-  - patch
-  - update

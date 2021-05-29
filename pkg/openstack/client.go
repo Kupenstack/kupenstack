@@ -117,3 +117,18 @@ func GetIdentityClient() (*gophercloud.ServiceClient, error) {
 
 	return client, nil
 }
+
+func GetImageServiceClient() (*gophercloud.ServiceClient, error) {
+
+	providerClient, err := GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := openstack.NewImageServiceV2(providerClient, gophercloud.EndpointOpts{})
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

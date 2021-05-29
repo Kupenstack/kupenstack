@@ -12,6 +12,16 @@ Prerequisites:
 kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/main/config/demo/kupenstack-controller-manager.yaml
 ```
 
+Wait for some time, till our deployment gets completed and our kupenstack-controller-manager becomes ready. It should take about 11 minutes.
+
+```
+kubectl get pods -n kupenstack-control
+NAME                                             READY   STATUS    RESTARTS   AGE
+kupenstack-controller-manager-85ff8ddb64-rf6qx   1/1     Running   0          12m
+```
+
+
+
 ### Usage
 
 Let try something simple like keypair.

@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/api/v1alpha1"
+	"github.com/kupenstack/kupenstack/controllers/image"
 	"github.com/kupenstack/kupenstack/controllers/keypair"
 	"github.com/kupenstack/kupenstack/controllers/project"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
@@ -90,6 +91,11 @@ func main() {
 		setupLog.Error(err, "unable to establish connection with openstack")
 	}
 
+	imageClient, err := openstack.GetImageServiceClient()
+	if err != nil {
+		setupLog.Error(err, "unable to establish connection with openstack")
+	}
+
 	if err = (&project.Reconciler{
 		Client:        mgr.GetClient(),
 		OSclient:      identityClient,
@@ -109,6 +115,16 @@ func main() {
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KeyPair")
+		os.Exit(1)
+	}
+	if err = (&image.Reconciler{
+		Client:        mgr.GetClient(),
+		OSclient:      imageClient,
+		Log:           ctrl.Log.WithName("controllers").WithName("Image"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Image")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
