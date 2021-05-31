@@ -1,0 +1,7 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: virtualmachine-sample
+spec:
+  image: image-sample
+  flavor: flavor-sample

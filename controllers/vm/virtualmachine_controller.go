@@ -14,15 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package image
+package vm
 
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,23 +36,22 @@ import (
 )
 
 const (
-	// contains name of image resource at openstack.
-	ExternalNameAnnotation = "kupenstack.io/external-image-name"
+	// contains name of virtual machine resource at openstack.
+	ExternalNameAnnotation = "kupenstack.io/external-virtual-machine-name"
 
 	Finalizer = "kupenstack.io/finalizer"
 )
 
 // Log messages
 const (
-	msgCreateFailed          = "Failed to create image resource at openstack."
-	msgUploadFailed          = "Failed to upload image to glance."
-	msgCreateSuccessful      = "Successfully created image resource at openstack."
-	msgDeleteFailed          = "Failed to delete image resource at openstack."
-	msgDeleteSuccessful      = "Successfully deleted image resource at openstack."
-	msgFinalizerRemoveFailed = "Failed to remove image finalizer at kubernetes."
+	msgCreateFailed          = "Failed to create virtual machine at openstack."
+	msgCreateSuccessful      = "Successfully created virtual machine at openstack."
+	msgDeleteFailed          = "Failed to delete virtual machine at openstack."
+	msgDeleteSuccessful      = "Successfully deleted virtual machine at openstack."
+	msgFinalizerRemoveFailed = "Failed to remove virtual machine finalizer at kubernetes."
 )
 
-// Reconciler reconciles a Image object
+// Reconciler reconciles a VirtualMachine object
 type Reconciler struct {
 	client.Client
 	OSclient      *gophercloud.ServiceClient
@@ -60,13 +60,15 @@ type Reconciler struct {
 	EventRecorder record.EventRecorder
 }
 
-//+kubebuilder:rbac:groups=kupenstack.io,resources=images,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=kupenstack.io,resources=images/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=kupenstack.io,resources=images/finalizers,verbs=update
+//+kubebuilder:rbac:groups=kupenstack.io,resources=virtualmachines,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=kupenstack.io,resources=virtualmachines/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=kupenstack.io,resources=virtualmachines/finalizers,verbs=update
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("image", req.NamespacedName)
+	log := r.Log.WithValues("virtual-machine", req.NamespacedName)
 
-	var cr kstypes.Image
+	requeuePeriod := time.Duration(2000000000)
+
+	var cr kstypes.VirtualMachine
 	err := r.Get(ctx, req.NamespacedName, &cr)
 	if err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
@@ -75,13 +77,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	// create
 	if cr.Status.ID == "" {
 
-		err = r.init(ctx, cr)
+		err := r.init(ctx, cr)
 		if err != nil {
 			r.Eventf(&cr, coreV1.EventTypeWarning, "CreateFailed",
-				"Image create failed. error: %s", err)
+				"Virtual Machine create failed. error: %s", err)
 		}
-		return ctrl.Result{RequeueAfter: 1000000000}, err
-
+		return ctrl.Result{RequeueAfter: 500000000}, err
 	}
 
 	// delete
@@ -89,45 +90,21 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		err = r.delete(ctx, cr)
 		if err != nil {
 			r.Eventf(&cr, coreV1.EventTypeWarning, "DeleteFailed",
-				"Image deletion failed. error: %s", err)
+				"Vitual Machine deletion failed. error: %s", err)
 		}
 		return ctrl.Result{}, err
 	}
 
-	img, err := images.Get(r.OSclient, cr.Status.ID).Extract()
-	if ignoreNotFoundError(err) != nil {
-		return ctrl.Result{}, err
-	}
-
-	if notFoundErr(err) {
-		cr.Status.ID = ""
-	}
-
-	if string(img.Status) == "active" {
-		cr.Status.Ready = true
-	} else {
-		cr.Status.Ready = false
-	}
-
-	if len(cr.Status.Usage.InstanceList) > 0 {
-		cr.Status.Usage.InUse = true
-	} else {
-		cr.Status.Usage.InUse = false
-	}
-
-	err = r.Status().Update(ctx, &cr)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+	err = r.updateStatus(ctx, cr)
 
 	log.Info("reconciled")
-	return ctrl.Result{RequeueAfter: 1000000000}, err
+	return ctrl.Result{RequeueAfter: requeuePeriod}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&kstypes.Image{}).
+		For(&kstypes.VirtualMachine{}).
 		Complete(r)
 }
 
@@ -137,14 +114,42 @@ func (r *Reconciler) Eventf(cr metav1.Object, eventtype, reason, messageFmt stri
 		eventtype, reason, fmt.Sprintf(messageFmt, args...))
 }
 
-func notFoundErr(err error) bool {
-	if err == nil {
-		return false
+func (r *Reconciler) updateStatus(ctx context.Context, cr kstypes.VirtualMachine) error {
+
+	server, err := servers.Get(r.OSclient, cr.Status.ID).Extract()
+	if err != nil {
+		return err
 	}
 
-	if err.Error() == "Resource not found" {
-		return true
-	} else {
-		return false
+	cr.Status.State = server.Status
+	if server.Status == "ACTIVE" {
+		cr.Status.State = "Running"
 	}
+
+	networkStatus := ""
+	allPages, err := servers.ListAddresses(r.OSclient, cr.Status.ID).AllPages()
+	if err != nil {
+		return err
+	}
+	allNetworks, err := servers.ExtractAddresses(allPages)
+	if err != nil {
+		return err
+	}
+	for networkName, allAddresses := range allNetworks {
+
+		networkStatus += networkName + "("
+		for i, address := range allAddresses {
+
+			if i > 0 {
+				networkStatus += ","
+			}
+			networkStatus += address.Address
+		}
+		networkStatus += ") "
+	}
+
+	cr.Status.IP = networkStatus
+
+	err = r.Status().Update(ctx, &cr)
+	return err
 }

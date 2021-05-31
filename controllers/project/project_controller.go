@@ -68,7 +68,7 @@ type Reconciler struct {
 //+kubebuilder:rbac:groups=v1,resources=namespaces/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=v1,resources=namespaces/finalizers,verbs=update
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("project", req.NamespacedName)
+	log := r.Log.WithValues("project", req.NamespacedName.Name)
 
 	var cr coreV1.Namespace
 	err := r.Get(ctx, req.NamespacedName, &cr)

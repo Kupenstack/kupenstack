@@ -63,11 +63,15 @@ type ImageStatus struct {
 
 	// Unique Id at openstack
 	ID string `json:"id,omitempty"`
+
+	// Image is active or not
+	Ready bool `json:"ready"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="IN-USE",type="boolean",JSONPath=".status.usage.inUse"
+//+kubebuilder:printcolumn:name="READY",type="boolean",JSONPath=".status.ready"
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:resource:scope=Cluster
 type Image struct {

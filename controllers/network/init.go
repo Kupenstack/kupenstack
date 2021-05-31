@@ -55,7 +55,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Network) error {
 		NetworkID:  createResult.ID,
 		CIDR:       cidr,
 		EnableDHCP: &dhcp,
-		IPVersion: 4,
+		IPVersion:  4,
 	}
 
 	_, err = subnets.Create(r.OSclient, subnetOpts).Extract()
