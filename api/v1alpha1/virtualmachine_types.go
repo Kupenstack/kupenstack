@@ -38,13 +38,17 @@ type VirtualMachineStatus struct {
 	State string `json:"state,omitempty"`
 
 	IP string `json:"ip,omitempty"`
+
+	// hostname
+	Node string `json:"node,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="NODE",type="string",JSONPath=".status.node"
 //+kubebuilder:printcolumn:name="STATE",type="string",JSONPath=".status.state"
-//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="NETWORKS(IP)",type="string",JSONPath=".status.ip",priority=1
+//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:resource:shortName={vm}
 type VirtualMachine struct {
 	metav1.TypeMeta   `json:",inline"`

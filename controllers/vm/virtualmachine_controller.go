@@ -24,6 +24,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
+	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/extendedserverattributes"
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -116,10 +117,18 @@ func (r *Reconciler) Eventf(cr metav1.Object, eventtype, reason, messageFmt stri
 
 func (r *Reconciler) updateStatus(ctx context.Context, cr kstypes.VirtualMachine) error {
 
-	server, err := servers.Get(r.OSclient, cr.Status.ID).Extract()
+	type serverAttributesExt struct {
+	  servers.Server
+	  extendedserverattributes.ServerAttributesExt
+	}
+	var server serverAttributesExt
+
+	err := servers.Get(r.OSclient, cr.Status.ID).ExtractInto(&server)
 	if err != nil {
 		return err
 	}
+
+	cr.Status.Node = server.Host
 
 	cr.Status.State = server.Status
 	if server.Status == "ACTIVE" {
