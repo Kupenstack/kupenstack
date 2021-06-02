@@ -25,3 +25,15 @@ func ContainsString(slice []string, s string) bool {
 	}
 	return false
 }
+
+// Helper functions to delete string from slice of strings.
+func DeleteString(slice []string, s string) []string {
+	for i, item := range slice {
+		if item == s {
+			slice[i] = slice[len(slice)-1]
+			slice = slice[:len(slice)-1]
+			return slice
+		}
+	}
+	return slice
+}

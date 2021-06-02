@@ -81,7 +81,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			r.Eventf(&cr, coreV1.EventTypeWarning, "CreateFailed",
 				"Keypair create failed. error: %s", err)
 		}
-		return ctrl.Result{}, err
+		return ctrl.Result{RequeueAfter: 1000000000}, err
 	}
 
 	// delete
@@ -94,8 +94,19 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	if len(cr.Status.Usage.InstanceList) > 0 {
+		cr.Status.Usage.InUse = true
+	} else {
+		cr.Status.Usage.InUse = false
+	}
+
+	err = r.Status().Update(ctx, &cr)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	log.Info("reconciled")
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 3000000000}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.

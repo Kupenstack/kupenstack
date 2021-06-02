@@ -63,7 +63,6 @@ type KeyPairStatus struct {
 //+kubebuilder:printcolumn:name="IN-USE",type="boolean",JSONPath=".status.usage.inUse"
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:printcolumn:name="PRIVATE-KEY",type="string",JSONPath=".status.privateKey.secret",priority=1
-//+kubebuilder:resource:shortName={kp}
 type KeyPair struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

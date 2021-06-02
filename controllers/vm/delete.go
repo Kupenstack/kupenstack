@@ -48,6 +48,34 @@ func (r *Reconciler) delete(ctx context.Context, cr kstypes.VirtualMachine) erro
 	}
 
 	r.Eventf(&cr, coreV1.EventTypeNormal, "Deleted", "Virtual Machine deleted.")
+
+	img, _ := r.getImageResource(ctx, cr)
+	keypair, _ := r.getKeyPairResource(ctx, cr)
+	flavor, _ := r.getFlavorResource(ctx, cr)
+	networks, _ := r.getNetworkResource(ctx, cr)
+
+	if utils.ContainsString(img.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		img.Status.Usage.InstanceList = utils.DeleteString(img.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &img)
+	}
+
+	if utils.ContainsString(flavor.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		flavor.Status.Usage.InstanceList = utils.DeleteString(flavor.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &flavor)
+	}
+
+	if utils.ContainsString(keypair.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		keypair.Status.Usage.InstanceList = utils.DeleteString(keypair.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &keypair)
+	}
+
+	for _, network := range networks {
+
+		if utils.ContainsString(network.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+			network.Status.Usage.InstanceList = utils.DeleteString(network.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+			r.Status().Update(ctx, &network)
+		}
+	}
 	return nil
 }
 

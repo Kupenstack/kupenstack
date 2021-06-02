@@ -19,16 +19,19 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
+    - jsonPath: .status.node
+      name: NODE
+      type: string
     - jsonPath: .status.state
       name: STATE
       type: string
-    - jsonPath: .metadata.creationTimestamp
-      name: AGE
-      type: date
     - jsonPath: .status.ip
       name: NETWORKS(IP)
       priority: 1
       type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -63,6 +66,9 @@ spec:
               id:
                 type: string
               ip:
+                type: string
+              node:
+                description: hostname
                 type: string
               state:
                 type: string

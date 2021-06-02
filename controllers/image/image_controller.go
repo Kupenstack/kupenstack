@@ -121,7 +121,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	log.Info("reconciled")
-	return ctrl.Result{RequeueAfter: 1000000000}, err
+	return ctrl.Result{RequeueAfter: 2000000000}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.

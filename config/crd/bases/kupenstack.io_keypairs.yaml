@@ -13,8 +13,6 @@ spec:
     kind: KeyPair
     listKind: KeyPairList
     plural: keypairs
-    shortNames:
-    - kp
     singular: keypair
   scope: Namespaced
   versions:

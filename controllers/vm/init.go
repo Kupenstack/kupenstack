@@ -72,28 +72,25 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.VirtualMachine) error 
 		return nil
 	}
 
+	networks, err := r.getNetworkResource(ctx, cr)
+	if err != nil {
+		return err
+	}
+	if networks == nil {
+		return nil
+	}
+
 	// get network ids
-	var networks []servers.Network
-	for _, networkName := range cr.Spec.Networks {
-
-		var temp kstypes.Network
-		err = r.Get(ctx, types.NamespacedName{Name: networkName}, &temp)
-		if err != nil {
-			return err
-		}
-
-		if temp.Status.ID == "" {
-			return nil
-		} else {
-			networks = append(networks, servers.Network{UUID: temp.Status.ID})
-		}
+	var serverNetworks []servers.Network
+	for _, network := range networks {
+		serverNetworks = append(serverNetworks, servers.Network{UUID: network.Status.ID})
 	}
 
 	serverCreateOpts := servers.CreateOpts{
 		Name:      cr.Name,
 		ImageRef:  img.Status.ID,
 		FlavorRef: flavor.Status.ID,
-		Networks:  networks,
+		Networks:  serverNetworks,
 	}
 
 	createOpts := keypairs.CreateOptsExt{
@@ -127,6 +124,29 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.VirtualMachine) error 
 	err = r.Update(ctx, &cr)
 	if err != nil {
 		return err
+	}
+
+	if !utils.ContainsString(img.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		img.Status.Usage.InstanceList = append(img.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &img)
+	}
+
+	if !utils.ContainsString(flavor.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		flavor.Status.Usage.InstanceList = append(flavor.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &flavor)
+	}
+
+	if !utils.ContainsString(keypair.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+		keypair.Status.Usage.InstanceList = append(keypair.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+		r.Status().Update(ctx, &keypair)
+	}
+
+	for _, network := range networks {
+
+		if !utils.ContainsString(network.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name) {
+			network.Status.Usage.InstanceList = append(network.Status.Usage.InstanceList, cr.Namespace+"/"+cr.Name)
+			r.Status().Update(ctx, &network)
+		}
 	}
 
 	r.Eventf(&cr, coreV1.EventTypeNormal, "Created", "Virtual Machine created.")
@@ -205,4 +225,24 @@ func (r *Reconciler) getFlavorResource(ctx context.Context, cr kstypes.VirtualMa
 	}
 
 	return flavor, err
+}
+
+func (r *Reconciler) getNetworkResource(ctx context.Context, cr kstypes.VirtualMachine) ([]kstypes.Network, error) {
+
+	var networks []kstypes.Network
+	for _, networkName := range cr.Spec.Networks {
+
+		var temp kstypes.Network
+		err := r.Get(ctx, types.NamespacedName{Name: networkName}, &temp)
+		if err != nil {
+			return nil, err
+		}
+
+		if temp.Status.ID == "" {
+			return nil, nil
+		} else {
+			networks = append(networks, temp)
+		}
+	}
+	return networks, nil
 }
