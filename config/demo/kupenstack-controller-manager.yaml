@@ -6,6 +6,207 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
+  name: flavors.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: Flavor
+    listKind: FlavorList
+    plural: flavors
+    singular: flavor
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.usage.inUse
+      name: IN-USE
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              disk:
+                description: Disk size in GB
+                format: int32
+                type: integer
+              ephemeral:
+                format: int32
+                type: integer
+              ram:
+                description: Ram size in MB
+                format: int32
+                type: integer
+              rxtx:
+                anyOf:
+                - type: integer
+                - type: string
+                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                x-kubernetes-int-or-string: true
+              swap:
+                format: int32
+                type: integer
+              vcpu:
+                format: int32
+                type: integer
+            type: object
+          status:
+            properties:
+              id:
+                description: Unique Id at openstack
+                type: string
+              usage:
+                description: Contains list of all instances using it.
+                properties:
+                  inUse:
+                    description: set to true when keypair is being used by any instance.
+                    type: boolean
+                  instances:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - inUse
+                type: object
+            required:
+            - usage
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: images.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: Image
+    listKind: ImageList
+    plural: images
+    singular: image
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.usage.inUse
+      name: IN-USE
+      type: boolean
+    - jsonPath: .status.ready
+      name: READY
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              containerFormat:
+                type: string
+              format:
+                description: Disk format of the image
+                type: string
+              minDisk:
+                description: Minimum disk size in GB required to boot this image.
+                format: int32
+                type: integer
+              minRam:
+                description: Minimum ram size in MB required to boot this image.
+                format: int32
+                type: integer
+              src:
+                description: Source contains url to pull image from.
+                type: string
+            type: object
+          status:
+            properties:
+              id:
+                description: Unique Id at openstack
+                type: string
+              ready:
+                description: Image is active or not
+                type: boolean
+              usage:
+                description: Contains list of all instances using it.
+                properties:
+                  inUse:
+                    description: set to true when keypair is being used by any instance.
+                    type: boolean
+                  instances:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - inUse
+                type: object
+            required:
+            - ready
+            - usage
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
   name: keypairs.kupenstack.io
 spec:
   group: kupenstack.io
@@ -13,8 +214,6 @@ spec:
     kind: KeyPair
     listKind: KeyPairList
     plural: keypairs
-    shortNames:
-    - kp
     singular: keypair
   scope: Namespaced
   versions:
@@ -95,6 +294,171 @@ status:
     plural: ""
   conditions: []
   storedVersions: []
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: networks.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: Network
+    listKind: NetworkList
+    plural: networks
+    singular: network
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.usage.inUse
+      name: IN-USE
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              cidr:
+                type: string
+            type: object
+          status:
+            properties:
+              id:
+                description: Unique Id at openstack
+                type: string
+              usage:
+                description: Contains list of all instances using it.
+                properties:
+                  inUse:
+                    description: set to true when keypair is being used by any instance.
+                    type: boolean
+                  instances:
+                    items:
+                      type: string
+                    type: array
+                required:
+                - inUse
+                type: object
+            required:
+            - usage
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: virtualmachines.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: VirtualMachine
+    listKind: VirtualMachineList
+    plural: virtualmachines
+    shortNames:
+    - vm
+    singular: virtualmachine
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.node
+      name: NODE
+      type: string
+    - jsonPath: .status.state
+      name: STATE
+      type: string
+    - jsonPath: .status.ip
+      name: NETWORKS(IP)
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              flavor:
+                type: string
+              image:
+                type: string
+              keyPair:
+                type: string
+              network:
+                items:
+                  type: string
+                type: array
+            type: object
+          status:
+            properties:
+              id:
+                type: string
+              ip:
+                type: string
+              node:
+                description: hostname
+                type: string
+              state:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
 
 ---
 apiVersion: v1
