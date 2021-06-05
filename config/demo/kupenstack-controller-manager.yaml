@@ -567,6 +567,12 @@ metadata:
   namespace: kupenstack-control
 
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kupenstack
+
+---
 kind: Service
 apiVersion: v1
 metadata:
