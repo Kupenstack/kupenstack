@@ -3,5 +3,5 @@ Cloud Native Openstack
 
 ---
 
-Read installation instruction in [quickstart](installer/readme.md)
+Read installation instruction in [quickstart](config/demo/readme.md)
 

@@ -1,3 +1,8 @@
+# default config for kupenstack deployment.
+# (works with KinD k8s cluster[https://kind.sigs.k8s.io/docs/user/quick-start/])
+# changes values according to deployment.
 spec:
   controlNodes:
+    - kind-control-plane
+  computeNodes:
     - kind-control-plane

@@ -467,6 +467,24 @@ metadata:
   labels:
     controller-manager: kupenstack
   name: kupenstack-control
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kupenstack-config
+  namespace: kupenstack-control
+data:
+  #node names are same as kubernetes cluster node names
+  kupenstack.yaml: |
+    spec:
+      controlNodes:
+        - kind-control-plane
+      computeNodes:
+        - kind-control-plane
+
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -490,6 +508,8 @@ spec:
         image: parthyadav/kupenstack-installer:latest
         volumeMounts:
           - mountPath: /etc/kupenstack/auth/
+            name: kupenstack-auth
+          - mountPath: /etc/kupenstack/config/
             name: kupenstack-config
       containers:
       - name: manager
@@ -498,7 +518,7 @@ spec:
         args:
         - --leader-elect
         imagePullPolicy: Always
-        image: parthyadav/kupenstack-controller:latest
+        image: parthyadav/kupenstack-controller:demo-1
         securityContext:
           allowPrivilegeEscalation: false
         livenessProbe:
@@ -515,12 +535,15 @@ spec:
           periodSeconds: 10
         volumeMounts:
           - mountPath: /etc/kupenstack/auth/
-            name: kupenstack-config
+            name: kupenstack-auth
       serviceAccountName: kupenstack-admin
       terminationGracePeriodSeconds: 10
       volumes:
-        - name: kupenstack-config
+        - name: kupenstack-auth
           emptyDir: {}
+        - name: kupenstack-config
+          configMap:
+            name: kupenstack-config
 
         
 ---
@@ -542,3 +565,18 @@ kind: ServiceAccount
 metadata:
   name: kupenstack-admin
   namespace: kupenstack-control
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: horizon-nodeport
+  namespace: kupenstack
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 32020
+  selector:
+    application: horizon
+    component: server

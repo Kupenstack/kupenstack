@@ -4,16 +4,16 @@
 # Add node labels
 
 # label openstack-control-plane=enabled
-controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/kupenstack.yaml)
+controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/config/kupenstack.yaml)
 for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-control-plane=enabled; done
 
-# label linuxbridge=enabled
-controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/kupenstack.yaml)
-for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename linuxbridge=enabled; done
-
 # label openstack-compute-node=enabled
-controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/kupenstack.yaml)
-for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-compute-node=enabled; done
+computeNodes=$(yq -r .spec.computeNodes /etc/kupenstack/config/kupenstack.yaml)
+for node in "${computeNodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-compute-node=enabled; done
+
+# label linuxbridge=enabled
+for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename linuxbridge=enabled; done
+for node in "${computeNodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename linuxbridge=enabled; done
 
 
 mkdir /etc/kupenstack/auth/openstack
