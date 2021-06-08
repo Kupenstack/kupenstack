@@ -28,7 +28,7 @@ https://user-images.githubusercontent.com/28928589/121054295-d7f63680-c7d9-11eb-
 
 #### Extra Resources:
 
-* [Slides: LFN Virtual Developer & Testing Forums](https://wiki.lfnetworking.org/display/LN/2021-06-DD+-+Anuket%3A+Cloud-Native+Openstack)
+* [Slides: LFN Virtual Developer & Testing Forums](https://wiki.lfnetworking.org/display/LN/2021-06-08+-+Anuket%3A+Cloud-Native+Openstack)
 
 
 
