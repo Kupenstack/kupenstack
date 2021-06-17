@@ -6,7 +6,7 @@ make -C ${OPENSTACK_HELM_ROOT_PATH} horizon
 
 helm upgrade --install horizon ${OPENSTACK_HELM_ROOT_PATH}/horizon \
     --namespace=kupenstack \
-    --set pod.replicas.server=1
+    --values=/etc/kupenstack/horizon.yaml
 
 
 # wait for horizon

@@ -1,4 +1,5 @@
 pod:
   replicas:
     server: 1
-    ingress: 1
+volume:
+  enabled: false

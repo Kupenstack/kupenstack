@@ -1,0 +1,19 @@
+network:
+  backend: 
+    - linuxbridge
+pod:
+  replicas:
+    osapi: 1
+    conductor: 1
+    consoleauth: 1
+bootstrap:
+  wait_for_computes:
+    enabled: true
+conf:
+  ceph:
+    enabled: false
+  nova:
+    libvirt:
+      virt_type: qemu
+      cpu_mode: none
+

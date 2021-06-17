@@ -1,0 +1,3 @@
+pod:
+  replicas:
+    api: 1

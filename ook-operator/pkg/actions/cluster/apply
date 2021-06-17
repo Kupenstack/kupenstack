@@ -1,0 +1,17 @@
+#!/bin/bash
+
+
+# Add node labels
+
+# label openstack-control-plane=enabled
+controlnodes=$(yq -r .spec.controlNodes /etc/kupenstack/cluster.yaml)
+for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-control-plane=enabled --overwrite; done
+
+# label openstack-compute-node=enabled
+computeNodes=$(yq -r .spec.computeNodes /etc/kupenstack/cluster.yaml)
+for node in "${computeNodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename openstack-compute-node=enabled --overwrite; done
+
+# label linuxbridge=enabled
+for node in "${controlnodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename linuxbridge=enabled --overwrite; done
+for node in "${computeNodes[@]}"; do nodename=$(echo $node | sed 's/[]"/[]//g'); kubectl label nodes $nodename linuxbridge=enabled --overwrite; done
+

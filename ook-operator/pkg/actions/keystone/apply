@@ -6,7 +6,7 @@ make -C ${OPENSTACK_HELM_ROOT_PATH} keystone
 
 helm upgrade --install keystone ${OPENSTACK_HELM_ROOT_PATH}/keystone \
     --namespace=kupenstack \
-    --set pod.replicas.api=1
+    --values=/etc/kupenstack/keystone.yaml
 
 
 # wait for keystone

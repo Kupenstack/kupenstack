@@ -4,11 +4,13 @@ OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
 
 make -C ${OPENSTACK_HELM_ROOT_PATH} glance
 
-kubectl apply -f /tmp/glance-pv.yaml
+# create volumes for glance
+kubectl apply -f /etc/kupenstack/glance-pv.yaml
 
+# glance
 helm upgrade --install glance ${OPENSTACK_HELM_ROOT_PATH}/glance \
     --namespace=kupenstack \
-    --values=/tmp/glance.yaml
+    --values=/etc/kupenstack/glance.yaml
 
 
 # wait for glance

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+
+make -C ${OPENSTACK_HELM_ROOT_PATH} placement
+
+helm upgrade --install placement ${OPENSTACK_HELM_ROOT_PATH}/placement \
+    --namespace=kupenstack \
+    --values=/etc/kupenstack/placement.yaml
+

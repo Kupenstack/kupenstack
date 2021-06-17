@@ -1,0 +1,31 @@
+#!/bin/bash
+
+OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+
+case "${OPENSTACK_RELEASE}" in
+  "queens")
+    DEPLOY_SEPARATE_PLACEMENT="no"
+    ;;
+  "rocky")
+    DEPLOY_SEPARATE_PLACEMENT="no"
+    ;;
+  "stein")
+    DEPLOY_SEPARATE_PLACEMENT="yes"
+    ;;
+  *)
+    DEPLOY_SEPARATE_PLACEMENT="yes"
+    ;;
+esac
+
+if [[ "${DEPLOY_SEPARATE_PLACEMENT}" == "yes" ]]; then
+  OSH_EXTRA_HELM_ARGS_NOVA="--values=${OPENSTACK_HELM_ROOT_PATH}/nova/values_overrides/train-disable-nova-placement.yaml"
+fi
+
+
+make -C ${OPENSTACK_HELM_ROOT_PATH} nova
+
+helm upgrade --install nova ${OPENSTACK_HELM_ROOT_PATH}/nova --namespace=kupenstack \
+      --values=/etc/kupenstack/nova.yaml \
+      ${OSH_EXTRA_HELM_ARGS_NOVA}
+
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+
+make -C ${OPENSTACK_HELM_ROOT_PATH} neutron
+
+helm upgrade --install neutron ${OPENSTACK_HELM_ROOT_PATH}/neutron \
+    --namespace=kupenstack \
+    --values=/etc/kupenstack/neutron.yaml
+
+# wait for everything
+cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kupenstack
+

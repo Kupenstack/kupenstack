@@ -1,0 +1,6 @@
+network:
+  backend: 
+    - linuxbridge
+conf:
+  ceph:
+    enabled: false
