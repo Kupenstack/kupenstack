@@ -31,6 +31,11 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr kstypes.Network) error {
 	log := r.Log.WithValues("network", cr.Name)
 
+	osclient, err := r.OS.GetClient("network")
+	if err != nil {
+		return err
+	}
+
 	shared := true
 	activate := true
 	createOpts := networks.CreateOpts{
@@ -38,7 +43,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Network) error {
 		AdminStateUp: &activate,
 		Shared:       &shared,
 	}
-	createResult, err := networks.Create(r.OSclient, createOpts).Extract()
+	createResult, err := networks.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err
@@ -58,7 +63,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Network) error {
 		IPVersion:  4,
 	}
 
-	_, err = subnets.Create(r.OSclient, subnetOpts).Extract()
+	_, err = subnets.Create(osclient, subnetOpts).Extract()
 	if err != nil {
 		log.Error(err, msgSubnetCreateFailed)
 		return err

@@ -35,11 +35,16 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr kstypes.VirtualMachine) error {
 	log := r.Log.WithValues("virtual-machine", cr.Namespace+"/"+cr.Name)
 
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
 	if cr.Spec.Networks == nil {
 		cr.Spec.Networks = append(cr.Spec.Networks, "default")
 	}
 
-	err := r.createNetworksIfNotExists(ctx, cr.Spec.Networks)
+	err = r.createNetworksIfNotExists(ctx, cr.Spec.Networks)
 	if err != nil {
 		return err
 	}
@@ -101,7 +106,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.VirtualMachine) error 
 		createOpts.KeyName = keypair.Annotations[kpctrl.ExternalNameAnnotation]
 	}
 
-	createResult, err := servers.Create(r.OSclient, createOpts).Extract()
+	createResult, err := servers.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err

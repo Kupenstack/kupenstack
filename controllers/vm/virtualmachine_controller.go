@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/extensions/extendedserverattributes"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
 	coreV1 "k8s.io/api/core/v1"
@@ -34,6 +33,7 @@ import (
 
 	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
+	"github.com/kupenstack/kupenstack/pkg/openstack"
 )
 
 const (
@@ -55,7 +55,7 @@ const (
 // Reconciler reconciles a VirtualMachine object
 type Reconciler struct {
 	client.Client
-	OSclient      *gophercloud.ServiceClient
+	OS            openstack.Client
 	Log           logr.Logger
 	Scheme        *runtime.Scheme
 	EventRecorder record.EventRecorder
@@ -117,13 +117,18 @@ func (r *Reconciler) Eventf(cr metav1.Object, eventtype, reason, messageFmt stri
 
 func (r *Reconciler) updateStatus(ctx context.Context, cr kstypes.VirtualMachine) error {
 
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
 	type serverAttributesExt struct {
 		servers.Server
 		extendedserverattributes.ServerAttributesExt
 	}
 	var server serverAttributesExt
 
-	err := servers.Get(r.OSclient, cr.Status.ID).ExtractInto(&server)
+	err = servers.Get(osclient, cr.Status.ID).ExtractInto(&server)
 	if err != nil {
 		return err
 	}
@@ -136,7 +141,7 @@ func (r *Reconciler) updateStatus(ctx context.Context, cr kstypes.VirtualMachine
 	}
 
 	networkStatus := ""
-	allPages, err := servers.ListAddresses(r.OSclient, cr.Status.ID).AllPages()
+	allPages, err := servers.ListAddresses(osclient, cr.Status.ID).AllPages()
 	if err != nil {
 		return err
 	}

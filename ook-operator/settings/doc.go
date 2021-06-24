@@ -16,4 +16,5 @@ limitations under the License.
 
 // Package settings stores default configurations for OOK-Operator.
 //
+// Holds global variables. These can be overridden with ENV.
 package settings

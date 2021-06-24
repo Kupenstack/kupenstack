@@ -34,12 +34,17 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr kstypes.KeyPair) error {
 	log := r.Log.WithValues("keypair", cr.Namespace+"/"+cr.Name)
 
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
 	createOpts := keypairs.CreateOpts{
 		Name:      r.generateName(cr.Name),
 		PublicKey: cr.Spec.PublicKey,
 	}
 
-	createResult, err := keypairs.Create(r.OSclient, createOpts).Extract()
+	createResult, err := keypairs.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err
@@ -111,7 +116,8 @@ func (r *Reconciler) generateName(name string) string {
 
 	generatedName := utilname.SimpleNameGenerator.GenerateName(name + "-")
 
-	allPages, _ := keypairs.List(r.OSclient).AllPages()
+	osclient, _ := r.OS.GetClient("compute")
+	allPages, _ := keypairs.List(osclient).AllPages()
 	allKeyPairs, _ := keypairs.ExtractKeyPairs(allPages)
 
 	unique := true

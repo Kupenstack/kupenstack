@@ -30,6 +30,11 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr kstypes.Flavor) error {
 	log := r.Log.WithValues("flavor", cr.Name)
 
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
 	public := true
 	disk := int(cr.Spec.Disk)
 	swap := int(cr.Spec.Swap)
@@ -44,7 +49,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Flavor) error {
 		Ephemeral:  &ephemeral,
 		RxTxFactor: cr.Spec.Rxtx.AsApproximateFloat64(),
 	}
-	createResult, err := flavors.Create(r.OSclient, createOpts).Extract()
+	createResult, err := flavors.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err

@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/gophercloud/gophercloud"
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,6 +30,7 @@ import (
 
 	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
+	"github.com/kupenstack/kupenstack/pkg/openstack"
 )
 
 const (
@@ -55,7 +55,7 @@ const (
 // Reconciler reconciles a KeyPair object
 type Reconciler struct {
 	client.Client
-	OSclient      *gophercloud.ServiceClient
+	OS            openstack.Client
 	Log           logr.Logger
 	Scheme        *runtime.Scheme
 	EventRecorder record.EventRecorder

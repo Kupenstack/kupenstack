@@ -30,13 +30,18 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr coreV1.Namespace) error {
 	log := r.Log.WithValues("project", cr.Name)
 
+	osclient, err := r.OS.GetClient("identity")
+	if err != nil {
+		return err
+	}
+
 	createOpts := projects.CreateOpts{
 		Name:        r.generateName(cr.Name),
 		Description: "kubernetes-namespace=" + cr.Name,
 		Tags:        []string{"kupenstack"},
 	}
 
-	createResult, err := projects.Create(r.OSclient, createOpts).Extract()
+	createResult, err := projects.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err
@@ -68,8 +73,19 @@ func (r *Reconciler) generateName(name string) string {
 
 	generatedName := utilname.SimpleNameGenerator.GenerateName(name + "-")
 
-	allPages, _ := projects.ListAvailable(r.OSclient).AllPages()
-	allProjects, _ := projects.ExtractProjects(allPages)
+	osclient, err := r.OS.GetClient("identity")
+	if err != nil {
+		return ""
+	}
+
+	allPages, err := projects.ListAvailable(osclient).AllPages()
+	if err != nil {
+		return ""
+	}
+	allProjects, err := projects.ExtractProjects(allPages)
+	if err != nil {
+		return ""
+	}
 
 	unique := true
 	for _, kp := range allProjects {

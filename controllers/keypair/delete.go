@@ -30,7 +30,12 @@ import (
 func (r *Reconciler) delete(ctx context.Context, cr kstypes.KeyPair) error {
 	log := r.Log.WithValues("keypair", cr.Namespace+"/"+cr.Name)
 
-	err := keypairs.Delete(r.OSclient, cr.Annotations[ExternalNameAnnotation]).ExtractErr()
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
+	err = keypairs.Delete(osclient, cr.Annotations[ExternalNameAnnotation]).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
 		return err

@@ -29,11 +29,16 @@ import (
 func (r *Reconciler) delete(ctx context.Context, cr coreV1.Namespace) (bool, error) {
 	log := r.Log.WithValues("project", cr.Name)
 
+	osclient, err := r.OS.GetClient("identity")
+	if err != nil {
+		return false, err
+	}
+
 	if utils.ContainsString(getFinalizers(cr), kubernetesFinalizer) {
 		return false, nil
 	}
 
-	err := projects.Delete(r.OSclient, cr.Annotations[ExternalIDAnnotation]).ExtractErr()
+	err = projects.Delete(osclient, cr.Annotations[ExternalIDAnnotation]).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
 		return false, err

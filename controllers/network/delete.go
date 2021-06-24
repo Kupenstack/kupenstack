@@ -30,7 +30,12 @@ import (
 func (r *Reconciler) delete(ctx context.Context, cr kstypes.Network) error {
 	log := r.Log.WithValues("network", cr.Name)
 
-	err := networks.Delete(r.OSclient, cr.Status.ID).ExtractErr()
+	osclient, err := r.OS.GetClient("network")
+	if err != nil {
+		return err
+	}
+
+	err = networks.Delete(osclient, cr.Status.ID).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
 		return err

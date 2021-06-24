@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack/imageservice/v2/images"
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,6 +31,7 @@ import (
 
 	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
+	"github.com/kupenstack/kupenstack/pkg/openstack"
 )
 
 const (
@@ -54,7 +54,7 @@ const (
 // Reconciler reconciles a Image object
 type Reconciler struct {
 	client.Client
-	OSclient      *gophercloud.ServiceClient
+	OS            openstack.Client
 	Log           logr.Logger
 	Scheme        *runtime.Scheme
 	EventRecorder record.EventRecorder
@@ -94,7 +94,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	img, err := images.Get(r.OSclient, cr.Status.ID).Extract()
+	osclient, err := r.OS.GetClient("image")
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	img, err := images.Get(osclient, cr.Status.ID).Extract()
 	if ignoreNotFoundError(err) != nil {
 		return ctrl.Result{}, err
 	}

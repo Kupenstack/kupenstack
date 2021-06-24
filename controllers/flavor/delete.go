@@ -30,7 +30,12 @@ import (
 func (r *Reconciler) delete(ctx context.Context, cr kstypes.Flavor) error {
 	log := r.Log.WithValues("flavor", cr.Name)
 
-	err := flavors.Delete(r.OSclient, cr.Status.ID).ExtractErr()
+	osclient, err := r.OS.GetClient("compute")
+	if err != nil {
+		return err
+	}
+
+	err = flavors.Delete(osclient, cr.Status.ID).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
 		return err

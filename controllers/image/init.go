@@ -31,6 +31,11 @@ import (
 func (r *Reconciler) init(ctx context.Context, cr kstypes.Image) error {
 	log := r.Log.WithValues("image", cr.Name)
 
+	osclient, err := r.OS.GetClient("image")
+	if err != nil {
+		return err
+	}
+
 	protected := false
 	public := images.ImageVisibilityPublic
 	if cr.Spec.ContainerFormat == "" {
@@ -45,7 +50,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Image) error {
 		MinDisk:         int(cr.Spec.MinDisk),
 		MinRAM:          int(cr.Spec.MinRam),
 	}
-	createResult, err := images.Create(r.OSclient, createOpts).Extract()
+	createResult, err := images.Create(osclient, createOpts).Extract()
 	if err != nil {
 		log.Error(err, msgCreateFailed)
 		return err
@@ -55,7 +60,7 @@ func (r *Reconciler) init(ctx context.Context, cr kstypes.Image) error {
 		Name: imageimport.WebDownloadMethod,
 		URI:  cr.Spec.Src,
 	}
-	err = imageimport.Create(r.OSclient, createResult.ID, importOpts).ExtractErr()
+	err = imageimport.Create(osclient, createResult.ID, importOpts).ExtractErr()
 	if err != nil {
 		log.Error(err, msgUploadFailed)
 	}

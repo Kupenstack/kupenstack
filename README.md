@@ -62,7 +62,7 @@ https://user-images.githubusercontent.com/28928589/121054295-d7f63680-c7d9-11eb-
 
 No, Kubernetes cluster is a prerequisite, KupenStack does not have any responsibility for provisioning a Kubernetes cluster. Instead, KupenStack takes benefits of this k8s cluster to simplify its OpenStack cluster management operations. So, now OpenStack users do not have to ssh to every node to fix/troubleshoot OpenStack deployments.
 
-**Q. How to use KupenStack. Does it provide any *ctl ?**
+**Q. How to use KupenStack. Does it provide any -ctl ?**
 
 KupenStack leverages k8s CRs. `kubectl` tool is being used to manage KupenStack. This also means other k8s utilities like `helm`,  `kustomize`, etc. can be used on KupenStack as is.
 

@@ -30,7 +30,12 @@ import (
 func (r *Reconciler) delete(ctx context.Context, cr kstypes.Image) error {
 	log := r.Log.WithValues("image", cr.Name)
 
-	err := images.Delete(r.OSclient, cr.Status.ID).ExtractErr()
+	osclient, err := r.OS.GetClient("image")
+	if err != nil {
+		return err
+	}
+
+	err = images.Delete(osclient, cr.Status.ID).ExtractErr()
 	if ignoreNotFoundError(err) != nil {
 		log.Error(err, msgDeleteFailed)
 		return err

@@ -17,133 +17,90 @@ limitations under the License.
 package openstack
 
 import (
-	"encoding/base64"
-	"io/ioutil"
-	"strings"
+	"fmt"
 
 	"github.com/gophercloud/gophercloud"
 	"github.com/gophercloud/gophercloud/openstack"
 )
 
-func readSecretKey(path string) (string, error) {
+const (
+	msgInvalidAuthOptions = "must provide non-nil gophercloud.AuthOptions to client.New()"
+	msgConnectionFailed   = "Failed to connect to openstack."
+)
 
-	encodedData, err := ioutil.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
+// Client is a gophercloud go-client warper that sends creates/list/delete/update requests
+// for openstack resources to openstack services/components. It lazily initializes
+// new gophercloud ServiceClients at the time they are used.
+type Client struct {
+	// Todo: cache requests in client.
 
-	value, err := base64.StdEncoding.DecodeString(string(encodedData))
-	if err != nil {
-		return "", err
-	}
+	provider *gophercloud.ProviderClient
 
-	valueStr := string(value)
-	valueStr = strings.TrimSuffix(valueStr, "\n")
-	valueStr = strings.TrimSpace(valueStr)
-
-	return valueStr, nil
+	// Client for each service
+	clientList map[string]*gophercloud.ServiceClient
 }
 
-func GetClient() (*gophercloud.ProviderClient, error) {
-
-	identityEndpoint, err := readSecretKey("/etc/kupenstack/auth/openstack/authUrl")
-	if err != nil {
-		return nil, err
-	}
-
-	username, err := readSecretKey("/etc/kupenstack/auth/openstack/username")
-	if err != nil {
-		return nil, err
-	}
-
-	password, err := readSecretKey("/etc/kupenstack/auth/openstack/password")
-	if err != nil {
-		return nil, err
-	}
-
-	domain, err := readSecretKey("/etc/kupenstack/auth/openstack/domain")
-	if err != nil {
-		return nil, err
-	}
-
-	tenant, err := readSecretKey("/etc/kupenstack/auth/openstack/tenant")
-	if err != nil {
-		return nil, err
-	}
-
-	authOpts := gophercloud.AuthOptions{
-		IdentityEndpoint: identityEndpoint,
-		Username:         username,
-		Password:         password,
-		DomainName:       domain,
-		TenantName:       tenant,
-	}
-
-	providerClient, err := openstack.AuthenticatedClient(authOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return providerClient, nil
-
+// New returns a new Client using the provided openstack authentication config.
+func New(config *gophercloud.AuthOptions) (*Client, error) {
+	return newClient(config)
 }
 
-func GetComputeClient() (*gophercloud.ServiceClient, error) {
+func newClient(config *gophercloud.AuthOptions) (*Client, error) {
+	if config == nil {
+		return nil, fmt.Errorf(msgInvalidAuthOptions)
+	}
 
-	providerClient, err := GetClient()
+	providerClient, err := openstack.AuthenticatedClient(*config)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := openstack.NewComputeV2(providerClient, gophercloud.EndpointOpts{})
-	if err != nil {
-		return nil, err
+	c := &Client{
+		provider: providerClient,
 	}
 
-	return client, nil
+	return c, nil
 }
 
-func GetIdentityClient() (*gophercloud.ServiceClient, error) {
+// client.GetClient() returns valid gophercloud.ServiceClient based on `Type` of service.
+// If ServiceClient does not exists then it lazily initializes it.
+//
+// Valid values for Type:
+//   * "compute"
+//   * "identity"
+//   * "image"
+//   * "network"
+func (client *Client) GetClient(Type string) (*gophercloud.ServiceClient, error) {
 
-	providerClient, err := GetClient()
-	if err != nil {
-		return nil, err
+	if client.clientList[Type] != nil {
+		return client.clientList[Type], nil
 	}
 
-	client, err := openstack.NewIdentityV3(providerClient, gophercloud.EndpointOpts{})
-	if err != nil {
-		return nil, err
+	if client.provider == nil {
+		return nil, fmt.Errorf(msgConnectionFailed)
 	}
 
-	return client, nil
-}
+	var err error
 
-func GetImageServiceClient() (*gophercloud.ServiceClient, error) {
-
-	providerClient, err := GetClient()
-	if err != nil {
-		return nil, err
+	switch Type {
+	case "compute":
+		client.clientList[Type], err = openstack.NewComputeV2(client.provider,
+			gophercloud.EndpointOpts{})
+	case "identity":
+		client.clientList[Type], err = openstack.NewIdentityV3(client.provider,
+			gophercloud.EndpointOpts{})
+	case "image":
+		client.clientList[Type], err = openstack.NewImageServiceV2(client.provider,
+			gophercloud.EndpointOpts{})
+	case "network":
+		client.clientList[Type], err = openstack.NewNetworkV2(client.provider,
+			gophercloud.EndpointOpts{})
+	default:
+		return nil, fmt.Errorf(msgConnectionFailed)
 	}
 
-	client, err := openstack.NewImageServiceV2(providerClient, gophercloud.EndpointOpts{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(msgConnectionFailed)
 	}
-
-	return client, nil
-}
-
-func GetNetworkClient() (*gophercloud.ServiceClient, error) {
-
-	providerClient, err := GetClient()
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := openstack.NewNetworkV2(providerClient, gophercloud.EndpointOpts{})
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
+	return client.clientList[Type], nil
 }

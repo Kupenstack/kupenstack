@@ -84,29 +84,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	computeClient, err := openstack.GetComputeClient()
-	if err != nil {
-		setupLog.Error(err, "unable to establish connection with openstack")
-	}
-
-	identityClient, err := openstack.GetIdentityClient()
-	if err != nil {
-		setupLog.Error(err, "unable to establish connection with openstack")
-	}
-
-	imageClient, err := openstack.GetImageServiceClient()
-	if err != nil {
-		setupLog.Error(err, "unable to establish connection with openstack")
-	}
-
-	networkClient, err := openstack.GetNetworkClient()
-	if err != nil {
-		setupLog.Error(err, "unable to establish connection with openstack")
-	}
+	OSclient := openstack.Client{}
 
 	if err = (&project.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      identityClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("Project"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
@@ -117,7 +99,7 @@ func main() {
 
 	if err = (&keypair.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      computeClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("KeyPair"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
@@ -127,7 +109,7 @@ func main() {
 	}
 	if err = (&image.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      imageClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("Image"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
@@ -137,7 +119,7 @@ func main() {
 	}
 	if err = (&flavor.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      computeClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("Flavor"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
@@ -147,7 +129,7 @@ func main() {
 	}
 	if err = (&network.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      networkClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("Network"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
@@ -157,7 +139,7 @@ func main() {
 	}
 	if err = (&vm.Reconciler{
 		Client:        mgr.GetClient(),
-		OSclient:      computeClient,
+		OS:            OSclient,
 		Log:           ctrl.Log.WithName("controllers").WithName("VirtualMachine"),
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
