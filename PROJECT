@@ -1,6 +1,7 @@
 domain: kupenstack.io
 layout:
 - go.kubebuilder.io/v3
+multigroup: true
 projectName: kupenstack
 repo: github.com/kupenstack/kupenstack
 resources:
@@ -10,7 +11,7 @@ resources:
   controller: true
   domain: kupenstack.io
   kind: KeyPair
-  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -18,7 +19,7 @@ resources:
   controller: true
   domain: kupenstack.io
   kind: Image
-  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -26,7 +27,7 @@ resources:
   controller: true
   domain: kupenstack.io
   kind: Flavor
-  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -34,7 +35,7 @@ resources:
   controller: true
   domain: kupenstack.io
   kind: Network
-  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -42,6 +43,24 @@ resources:
   controller: true
   domain: kupenstack.io
   kind: VirtualMachine
-  path: github.com/kupenstack/kupenstack/api/v1alpha1
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kupenstack.io
+  group: cluster
+  kind: Profile
+  path: github.com/kupenstack/kupenstack/apis/cluster/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kupenstack.io
+  group: cluster
+  kind: OOKCluster
+  path: github.com/kupenstack/kupenstack/apis/cluster/v1alpha1
   version: v1alpha1
 version: "3"

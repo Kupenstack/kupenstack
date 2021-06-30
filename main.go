@@ -31,7 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/api/v1alpha1"
+	clusterv1alpha1 "github.com/kupenstack/kupenstack/apis/cluster/v1alpha1"
+	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/apis/v1alpha1"
+	clustercontrollers "github.com/kupenstack/kupenstack/controllers/cluster"
 	"github.com/kupenstack/kupenstack/controllers/flavor"
 	"github.com/kupenstack/kupenstack/controllers/image"
 	"github.com/kupenstack/kupenstack/controllers/keypair"
@@ -51,6 +53,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(kupenstackiov1alpha1.AddToScheme(scheme))
+	utilruntime.Must(clusterv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -145,6 +148,22 @@ func main() {
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "VirtualMachine")
+		os.Exit(1)
+	}
+	if err = (&clustercontrollers.ProfileReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("cluster").WithName("Profile"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Profile")
+		os.Exit(1)
+	}
+	if err = (&clustercontrollers.OOKClusterReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("cluster").WithName("OOKCluster"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OOKCluster")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

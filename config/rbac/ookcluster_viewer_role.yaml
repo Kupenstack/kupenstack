@@ -1,0 +1,20 @@
+# permissions for end users to view ookclusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ookcluster-viewer-role
+rules:
+- apiGroups:
+  - cluster.kupenstack.io
+  resources:
+  - ookclusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.kupenstack.io
+  resources:
+  - ookclusters/status
+  verbs:
+  - get

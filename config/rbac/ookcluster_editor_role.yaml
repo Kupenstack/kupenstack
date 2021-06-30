@@ -1,0 +1,24 @@
+# permissions for end users to edit ookclusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ookcluster-editor-role
+rules:
+- apiGroups:
+  - cluster.kupenstack.io
+  resources:
+  - ookclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cluster.kupenstack.io
+  resources:
+  - ookclusters/status
+  verbs:
+  - get

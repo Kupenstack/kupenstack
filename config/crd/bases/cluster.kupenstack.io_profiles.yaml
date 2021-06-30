@@ -1,0 +1,145 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: profiles.cluster.kupenstack.io
+spec:
+  group: cluster.kupenstack.io
+  names:
+    kind: Profile
+    listKind: ProfileList
+    plural: profiles
+    singular: profile
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.from
+      name: PARENT
+      type: string
+    - jsonPath: .status.nodeCount
+      name: NODES
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              from:
+                description: Name of parent profile to inherit this profile from.
+                type: string
+              glanceApiAuditMapConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceApiConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceApiPasteConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceLoggingConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glancePolicyConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceRegistryConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceRegistryPasteConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              glanceSwiftStoreConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronApiAuditMapConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronApiPasteConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronDhcpAgentConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronL3AgentConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronLoggingConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronMetadataAgent:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronMl2Conf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronOpenvswitchAgentConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronPolicyConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              neutronSriovAgentConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              novaApiAuditMapConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              novaApiPasteConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              novaConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              novaLoggingConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+              novaPolicyConf:
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
+            type: object
+          status:
+            properties:
+              nodeCount:
+                description: 'NodeCount is string value of format: {Nodes using this
+                  profile}/{Total no. of nodes}'
+                type: string
+              nodes:
+                description: List of all nodes that are using this profile for OpenStack.
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

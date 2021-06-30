@@ -1,0 +1,8 @@
+apiVersion: cluster.kupenstack.io/v1alpha1
+kind: OOKCluster
+metadata:
+  name: ookcluster-sample
+spec:
+  nodes:
+    - name: mytestnodename
+      profile: sample-profile.default

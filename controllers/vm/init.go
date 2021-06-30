@@ -27,7 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
+	kstypes "github.com/kupenstack/kupenstack/apis/v1alpha1"
 	kpctrl "github.com/kupenstack/kupenstack/controllers/keypair"
 	"github.com/kupenstack/kupenstack/pkg/utils"
 )

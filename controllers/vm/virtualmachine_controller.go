@@ -31,7 +31,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
+	kstypes "github.com/kupenstack/kupenstack/apis/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
 )

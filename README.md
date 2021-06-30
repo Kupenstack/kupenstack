@@ -50,7 +50,7 @@ https://user-images.githubusercontent.com/28928589/121054295-d7f63680-c7d9-11eb-
 * [Slack invite](https://join.slack.com/t/kupenstack/shared_invite/zt-rpkca4zk-HKF1ewJifKcEvHlrdMBVrQ)
 * **Meetings:** Every month 1st Tuesday (16:00 UTC)
   * Next meeting: 6th July 2021
-  * Meeting minutes: https://docs.google.com/document/d/1jTwZkWtA6fevh3oDSuTrXKg6Ty56yCTwAWGwk5vlSgk/edit?usp=sharing
+  * Meeting link and minutes: https://docs.google.com/document/d/1jTwZkWtA6fevh3oDSuTrXKg6Ty56yCTwAWGwk5vlSgk/edit?usp=sharing
 
 ------
 

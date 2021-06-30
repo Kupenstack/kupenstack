@@ -24,7 +24,7 @@ import (
 	coreV1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	kstypes "github.com/kupenstack/kupenstack/api/v1alpha1"
+	kstypes "github.com/kupenstack/kupenstack/apis/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/utils"
 )
 
