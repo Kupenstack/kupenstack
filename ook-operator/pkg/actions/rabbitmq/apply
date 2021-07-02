@@ -1,8 +1,8 @@
 #!/bin/bash
 
-make -C ${HELM_CHART_ROOT_PATH} rabbitmq
+make -C ${OSH_INFRA_PATH} rabbitmq
 
-helm upgrade --install rabbitmq ${HELM_CHART_ROOT_PATH}/rabbitmq \
+helm upgrade --install rabbitmq ${OSH_INFRA_PATH}/rabbitmq \
     --namespace=kupenstack \
     --values=/etc/kupenstack/rabbitmq.yaml
 

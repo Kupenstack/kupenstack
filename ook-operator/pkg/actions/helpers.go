@@ -22,6 +22,10 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/http"
+	"context"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
 	"github.com/kupenstack/kupenstack/pkg/utils"
@@ -115,4 +119,87 @@ func PrepareOOKValues(r *http.Request, filenames []string) error {
 	}
 
 	return nil
+}
+
+
+type Status struct {
+
+	// Status can have values:
+	// * Ok         {}
+	// * NotOk      {}
+	// * Error      {Error from user, contains message for user as hint}
+	// * InProgress {}
+	Status string `json:"status"`
+	Msg string `json:"msg"`
+}
+
+
+func StatusByPodLabel(label string) ([]byte, error) {
+
+	k8s := settings.K8s.Clientset
+	pods, err := k8s.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{LabelSelector:label})
+	if err != nil{
+		return nil, err
+	}
+
+	var status Status
+	for _, pod := range pods.Items {
+
+		temp := podStatus(pod)
+		if temp.Status == "NotOk"{
+			status = temp
+			break
+		}
+
+		if temp.Status == "InProgress" && status.Status != "NotOk" {
+			status = temp
+		}
+		if temp.Status == "Ok" && status.Status == "" {
+			status = temp
+		}
+	}
+
+	statusStr, err := json.Marshal(status)
+	if err != nil {
+		return nil, err
+	}
+	return statusStr, nil
+}
+
+
+func podStatus(pod corev1.Pod) Status {
+
+	state := ""
+
+	if pod.Status.ContainerStatuses == nil {
+
+		state = "NotOk"
+
+	} else {
+
+		for _, container := range pod.Status.ContainerStatuses {
+
+			if container.Ready {
+
+				state = "Ok"
+				continue
+
+			} else {
+
+				if container.State.Running != nil || container.State.Waiting != nil {
+					state = "InProgress"
+					break
+				}
+
+				if container.State.Terminated != nil && container.State.Terminated.Reason != "Completed"{
+					state = "NotOk"
+					break
+				}
+			}
+			
+
+		}
+	}
+
+	return Status{Status: state}
 }

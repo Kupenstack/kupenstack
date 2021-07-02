@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"encoding/json"
 
 	pkg "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
@@ -48,3 +49,56 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+
+func Status(w http.ResponseWriter, r *http.Request) {
+	log := settings.Log.WithValues("action", "status-helm")
+
+	statusKubeSystem, err := pkg.StatusByPodLabel("release_group=ingress-kube-system")
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return
+	}
+
+	statusOpenStack, err := pkg.StatusByPodLabel("release_group=ingress-openstack")
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return
+	}
+
+	var kubesystem, openstack pkg.Status
+	err = json.Unmarshal(statusKubeSystem, &kubesystem)
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return
+	}
+	err = json.Unmarshal(statusOpenStack, &openstack)
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if openstack.Status == "NotOk" || kubesystem.Status == "NotOk" {
+		w.Write( []byte("{\"status\":\"NotOk\",\"msg\":\"\"}") )
+		return
+	}
+
+	if openstack.Status == "InProgress" || kubesystem.Status == "InProgress" {
+		w.Write( []byte("{\"status\":\"InProgress\",\"msg\":\"\"}") )
+		return
+	}
+
+	w.Write( []byte("{\"status\":\"Ok\",\"msg\":\"\"}") )
+	return
+}
+

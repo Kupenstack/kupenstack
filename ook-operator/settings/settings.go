@@ -18,6 +18,7 @@ package settings
 
 import (
 	"github.com/go-logr/logr"
+	discovery "github.com/gkarthiks/k8s-discovery"
 )
 
 // Port to server at
@@ -34,3 +35,5 @@ var ConfigDir string
 var ActionsDir string
 
 var Log logr.Logger
+
+var K8s *discovery.K8s

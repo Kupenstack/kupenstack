@@ -1,8 +1,8 @@
 #!/bin/bash
 
-make -C ${HELM_CHART_ROOT_PATH} mariadb
+make -C ${OSH_INFRA_PATH} mariadb
 
-helm upgrade --install mariadb ${HELM_CHART_ROOT_PATH}/mariadb \
+helm upgrade --install mariadb ${OSH_INFRA_PATH}/mariadb \
     --namespace=kupenstack \
     --values=/etc/kupenstack/mariadb.yaml
 

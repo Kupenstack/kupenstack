@@ -15,5 +15,5 @@ helm serve &
 cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kube-system
 
 
-make -C ${HELM_CHART_ROOT_PATH} helm-toolkit
+make -C ${OSH_INFRA_PATH} helm-toolkit
 

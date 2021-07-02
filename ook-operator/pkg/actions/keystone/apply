@@ -1,10 +1,8 @@
 #!/bin/bash
 
-OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+make -C ${OSH_PATH} keystone
 
-make -C ${OPENSTACK_HELM_ROOT_PATH} keystone
-
-helm upgrade --install keystone ${OPENSTACK_HELM_ROOT_PATH}/keystone \
+helm upgrade --install keystone ${OSH_PATH}/keystone \
     --namespace=kupenstack \
     --values=/etc/kupenstack/keystone.yaml
 

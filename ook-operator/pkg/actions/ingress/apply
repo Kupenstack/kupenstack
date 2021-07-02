@@ -1,8 +1,8 @@
 #!/bin/bash
 
-make -C ${HELM_CHART_ROOT_PATH} ingress
+make -C ${OSH_INFRA_PATH} ingress
 
-helm upgrade --install ingress-kube-system ${HELM_CHART_ROOT_PATH}/ingress \
+helm upgrade --install ingress-kube-system ${OSH_INFRA_PATH}/ingress \
   --namespace=kube-system \
   --values=/etc/kupenstack/ingressKubeSystem.yaml
 
@@ -13,7 +13,7 @@ cd /opt/openstack-helm && ./tools/deployment/common/wait-for-pods.sh kube-system
 helm status ingress-kube-system
 
 # Deploy ingress-openstack
-helm upgrade --install ingress-openstack ${HELM_CHART_ROOT_PATH}/ingress \
+helm upgrade --install ingress-openstack ${OSH_INFRA_PATH}/ingress \
   --namespace=kupenstack \
   --values=/etc/kupenstack/ingressComponent.yaml 
 

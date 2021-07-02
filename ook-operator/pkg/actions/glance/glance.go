@@ -48,3 +48,19 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+
+func Status(w http.ResponseWriter, r *http.Request) {
+	log := settings.Log.WithValues("action", "status-helm")
+
+	status, err := pkg.StatusByPodLabel("release_group=glance")
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(status)
+}

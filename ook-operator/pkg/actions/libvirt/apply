@@ -1,15 +1,8 @@
 #!/bin/bash
 
-OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+make -C ${OSH_INFRA_PATH} libvirt
 
-
-########
-# Libvirt
-########
-
-make -C ${HELM_CHART_ROOT_PATH} libvirt
-
-helm upgrade --install libvirt ${HELM_CHART_ROOT_PATH}/libvirt \
+helm upgrade --install libvirt ${OSH_INFRA_PATH}/libvirt \
   --namespace=kupenstack \
   --values=/etc/kupenstack/libvirt.yaml
 

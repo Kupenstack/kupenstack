@@ -1,10 +1,8 @@
 #!/bin/bash
 
-OPENSTACK_HELM_ROOT_PATH=/opt/openstack-helm
+make -C ${OSH_PATH} horizon
 
-make -C ${OPENSTACK_HELM_ROOT_PATH} horizon
-
-helm upgrade --install horizon ${OPENSTACK_HELM_ROOT_PATH}/horizon \
+helm upgrade --install horizon ${OSH_PATH}/horizon \
     --namespace=kupenstack \
     --values=/etc/kupenstack/horizon.yaml
 

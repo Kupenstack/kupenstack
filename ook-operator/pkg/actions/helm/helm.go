@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package initializer
+package helm
 
 import (
 	"net/http"
 	"os"
 	"os/exec"
+	"encoding/json"
 
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
+	pkg "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
 )
 
 func Apply(w http.ResponseWriter, r *http.Request) {
-	log := settings.Log.WithValues("action", "init")
+	log := settings.Log.WithValues("action", "apply-helm")
 
-	cmd := exec.Command(settings.ActionsDir + "init/initCreds")
+	cmd := exec.Command(settings.ActionsDir + "helm/initCreds")
 	cmd.Stdout = os.Stdout
 	err := cmd.Start()
 	if err != nil {
@@ -37,7 +39,7 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd = exec.Command(settings.ActionsDir + "init/initHelm")
+	cmd = exec.Command(settings.ActionsDir + "helm/initHelm")
 	cmd.Stdout = os.Stdout
 	err = cmd.Start()
 	if err != nil {
@@ -48,4 +50,40 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+
+
+func Status(w http.ResponseWriter, r *http.Request) {
+	log := settings.Log.WithValues("action", "status-helm")
+
+	status := pkg.Status{Status: "Ok"}
+
+	resp, err := http.Get("http://localhost:8879")
+	if err != nil {
+		log.Error(err, "Helm serve not running.")
+		status.Status = "NotOk"
+	}
+
+	if resp == nil || resp.StatusCode != 200 {
+		status.Status = "NotOk"
+	}
+
+	cmd := exec.Command("helm", "list")
+	err = cmd.Run()
+	if err != nil {
+		log.Error(err, "")
+		status.Status = "NotOk"
+	}
+
+	statusStr, err := json.Marshal(status)
+	if err != nil {
+		log.Error(err, "")
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
+		return	    
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(statusStr)
 }

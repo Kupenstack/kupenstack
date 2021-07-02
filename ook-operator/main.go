@@ -20,6 +20,7 @@ import (
 	operator "github.com/kupenstack/kupenstack/ook-operator/pkg"
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
 	"k8s.io/klog/v2/klogr"
+	discovery "github.com/gkarthiks/k8s-discovery"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	settings.ActionsDir = "/workspace/ook-operator/pkg/actions/"
 	settings.ConfigDir = "/etc/kupenstack/"
 	settings.Log = klogr.New().WithName("ook-operator")
+	settings.K8s, _ = discovery.NewK8s() 
 
 	operator.Serve()
 }
