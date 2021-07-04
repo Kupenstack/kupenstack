@@ -23,9 +23,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"context"
+	"strings"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
 	"github.com/kupenstack/kupenstack/pkg/utils"
@@ -136,9 +137,10 @@ type Status struct {
 
 func StatusByPodLabel(label string) ([]byte, error) {
 
-	k8s := settings.K8s.Clientset
-	pods, err := k8s.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{LabelSelector:label})
-	if err != nil{
+	l := strings.Split(label, "=")
+	pods := &corev1.PodList{}
+	err := settings.K8s.List(context.TODO(), pods, client.MatchingLabels{l[0]: l[1]})
+	if err != nil {
 		return nil, err
 	}
 
@@ -203,3 +205,18 @@ func podStatus(pod corev1.Pod) Status {
 
 	return Status{Status: state}
 }
+
+
+// func GetClient(configFile string) (*kubernetes.Clientset, error) {
+// 	var config *rest.Config
+// 	var err error
+// 	if configFile == "" {
+// 		config, err = rest.InClusterConfig()
+// 	} else {
+// 		config, err = cliencmd.BuildConfigFromFlags("", configFile)
+// 	}
+// 	if err != nil {
+// 		return nil, errr
+// 	}
+// 	return kubernetes.NewForConfig(config)
+// }

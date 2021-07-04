@@ -17,10 +17,14 @@ limitations under the License.
 package main
 
 import (
+	"os"
+
+	"k8s.io/klog/v2/klogr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
+
 	operator "github.com/kupenstack/kupenstack/ook-operator/pkg"
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
-	"k8s.io/klog/v2/klogr"
-	discovery "github.com/gkarthiks/k8s-discovery"
 )
 
 func main() {
@@ -32,7 +36,14 @@ func main() {
 	settings.ActionsDir = "/workspace/ook-operator/pkg/actions/"
 	settings.ConfigDir = "/etc/kupenstack/"
 	settings.Log = klogr.New().WithName("ook-operator")
-	settings.K8s, _ = discovery.NewK8s() 
+
+	k8s, err := client.New(config.GetConfigOrDie(), client.Options{})
+	if err != nil {
+		settings.Log.Error(err, "failed to start ook-operator")
+		os.Exit(1)
+	}
+	settings.K8s = k8s
+
 
 	operator.Serve()
 }

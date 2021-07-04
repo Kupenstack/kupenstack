@@ -93,6 +93,11 @@ func Status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if openstack.Status == "" && kubesystem.Status == "" {
+		w.Write( []byte("{\"status\":\"NotOk\",\"msg\":\"\"}") )
+		return
+	}
+
 	if openstack.Status == "InProgress" || kubesystem.Status == "InProgress" {
 		w.Write( []byte("{\"status\":\"InProgress\",\"msg\":\"\"}") )
 		return

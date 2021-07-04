@@ -53,11 +53,13 @@ type NodeProfile struct {
 
 type OOKClusterSpec struct {
 
+	Profile string `json:"profile,omitempty"`
+
 	// By default all kubernetes nodes are part of OpenStack cluster with
 	// default configurations. Nodes defines a list of all nodes that have overriden
 	// default configurations.
 	// +optional
-	Nodes []NodeProfile `json:"nodes,omitempty"`
+	// Nodes []NodeProfile `json:"nodes,omitempty"`
 }
 
 

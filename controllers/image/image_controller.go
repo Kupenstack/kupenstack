@@ -54,7 +54,7 @@ const (
 // Reconciler reconciles a Image object
 type Reconciler struct {
 	client.Client
-	OS            openstack.Client
+	OS            *openstack.Client
 	Log           logr.Logger
 	Scheme        *runtime.Scheme
 	EventRecorder record.EventRecorder

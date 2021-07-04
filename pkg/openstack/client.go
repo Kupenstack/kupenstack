@@ -25,7 +25,7 @@ import (
 
 const (
 	msgInvalidAuthOptions = "must provide non-nil gophercloud.AuthOptions to client.New()"
-	msgConnectionFailed   = "Failed to connect to openstack."
+	MsgConnectionFailed   = "Failed to connect to openstack."
 )
 
 // Client is a gophercloud go-client warper that sends creates/list/delete/update requests
@@ -57,6 +57,7 @@ func newClient(config *gophercloud.AuthOptions) (*Client, error) {
 
 	c := &Client{
 		provider: providerClient,
+		clientList: make(map[string]*gophercloud.ServiceClient),
 	}
 
 	return c, nil
@@ -77,7 +78,7 @@ func (client *Client) GetClient(Type string) (*gophercloud.ServiceClient, error)
 	}
 
 	if client.provider == nil {
-		return nil, fmt.Errorf(msgConnectionFailed)
+		return nil, fmt.Errorf(MsgConnectionFailed)
 	}
 
 	var err error
@@ -96,11 +97,12 @@ func (client *Client) GetClient(Type string) (*gophercloud.ServiceClient, error)
 		client.clientList[Type], err = openstack.NewNetworkV2(client.provider,
 			gophercloud.EndpointOpts{})
 	default:
-		return nil, fmt.Errorf(msgConnectionFailed)
+		return nil, fmt.Errorf(MsgConnectionFailed)
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf(msgConnectionFailed)
+		return nil, fmt.Errorf(MsgConnectionFailed)
 	}
+
 	return client.clientList[Type], nil
 }

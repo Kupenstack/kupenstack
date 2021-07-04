@@ -3,6 +3,7 @@ kind: OOKCluster
 metadata:
   name: ookcluster-sample
 spec:
-  nodes:
-    - name: mytestnodename
-      profile: sample-profile.default
+  profile: sample-profile.default
+  # nodes:
+  #   - name: mytestnodename
+  #     profile: sample-profile.default

@@ -41,33 +41,8 @@ spec:
             type: object
           spec:
             properties:
-              nodes:
-                description: By default all kubernetes nodes are part of OpenStack
-                  cluster with default configurations. Nodes defines a list of all
-                  nodes that have overriden default configurations.
-                items:
-                  properties:
-                    disabled:
-                      description: Default value is false. To remove node from cluster
-                        set disabled to true.
-                      type: boolean
-                    name:
-                      description: Name of node. Same as name of Kubernetes node.
-                      type: string
-                    profile:
-                      description: 'Name of profile to use for this node. Default
-                        value: default. For profile in different namespace use dns
-                        notation of type profilename.namespace'
-                      type: string
-                    type:
-                      default: compute
-                      description: 'Type of node: "control" or "compute"'
-                      enum:
-                      - compute
-                      - control
-                      type: string
-                  type: object
-                type: array
+              profile:
+                type: string
             type: object
           status:
             properties:

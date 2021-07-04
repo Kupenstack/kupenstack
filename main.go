@@ -24,12 +24,17 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	operator "github.com/kupenstack/kupenstack/ook-operator/pkg"
+	"github.com/kupenstack/kupenstack/ook-operator/settings"
 
 	clusterv1alpha1 "github.com/kupenstack/kupenstack/apis/cluster/v1alpha1"
 	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/apis/v1alpha1"
@@ -87,7 +92,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	OSclient := openstack.Client{}
+	OSclient := &openstack.Client{}
 
 	if err = (&project.Reconciler{
 		Client:        mgr.GetClient(),
@@ -158,10 +163,12 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Profile")
 		os.Exit(1)
 	}
-	if err = (&clustercontrollers.OOKClusterReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("cluster").WithName("OOKCluster"),
-		Scheme: mgr.GetScheme(),
+	if err = (&clustercontrollers.Reconciler{
+		Client:        mgr.GetClient(),
+		OS:            OSclient,
+		Log:           ctrl.Log.WithName("controllers").WithName("cluster").WithName("OOKCluster"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OOKCluster")
 		os.Exit(1)
@@ -177,9 +184,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	setupLog.Info("starting ook-operator")
+	go startOOKOperator(ctrl.Log, mgr.GetClient())
+
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+
+func startOOKOperator(log logr.Logger, cl client.Client) {
+	settings.Port = ":5000"
+	settings.DefaultsDir = "/workspace/ook-operator/settings/"
+	settings.ActionsDir = "/workspace/ook-operator/pkg/actions/"
+	settings.ConfigDir = "/etc/kupenstack/"
+	settings.Log = log.WithName("ook-operator")
+	settings.K8s = cl
+
+	operator.Serve()
 }
