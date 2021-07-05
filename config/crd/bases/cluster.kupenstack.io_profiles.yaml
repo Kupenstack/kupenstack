@@ -20,9 +20,6 @@ spec:
     - jsonPath: .spec.from
       name: PARENT
       type: string
-    - jsonPath: .status.nodeCount
-      name: NODES
-      type: string
     - jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date

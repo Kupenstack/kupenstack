@@ -119,10 +119,11 @@ type ProfileStatus struct {
 	NodeCount string `json:"nodeCount,omitempty"`
 }
 
+// skipped //// +kubebuilder:printcolumn:name="NODES",type="string",JSONPath=".status.nodeCount"
+
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="PARENT",type="string",JSONPath=".spec.from"
-//+kubebuilder:printcolumn:name="NODES",type="string",JSONPath=".status.nodeCount"
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp"
 type Profile struct {
 	metav1.TypeMeta   `json:",inline"`
