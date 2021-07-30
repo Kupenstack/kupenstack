@@ -21,8 +21,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/kupenstack/kupenstack/ook-operator/settings"
 	pkg "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
+	"github.com/kupenstack/kupenstack/ook-operator/settings"
 )
 
 func Apply(w http.ResponseWriter, r *http.Request) {

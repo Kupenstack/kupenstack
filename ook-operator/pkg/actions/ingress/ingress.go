@@ -17,10 +17,10 @@ limitations under the License.
 package ingress
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
-	"encoding/json"
 
 	pkg "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
 	"github.com/kupenstack/kupenstack/ook-operator/settings"
@@ -49,7 +49,6 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func Status(w http.ResponseWriter, r *http.Request) {
 	log := settings.Log.WithValues("action", "status-helm")
@@ -89,21 +88,20 @@ func Status(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if openstack.Status == "NotOk" || kubesystem.Status == "NotOk" {
-		w.Write( []byte("{\"status\":\"NotOk\",\"msg\":\"\"}") )
+		w.Write([]byte("{\"status\":\"NotOk\",\"msg\":\"\"}"))
 		return
 	}
 
 	if openstack.Status == "" && kubesystem.Status == "" {
-		w.Write( []byte("{\"status\":\"NotOk\",\"msg\":\"\"}") )
+		w.Write([]byte("{\"status\":\"NotOk\",\"msg\":\"\"}"))
 		return
 	}
 
 	if openstack.Status == "InProgress" || kubesystem.Status == "InProgress" {
-		w.Write( []byte("{\"status\":\"InProgress\",\"msg\":\"\"}") )
+		w.Write([]byte("{\"status\":\"InProgress\",\"msg\":\"\"}"))
 		return
 	}
 
-	w.Write( []byte("{\"status\":\"Ok\",\"msg\":\"\"}") )
+	w.Write([]byte("{\"status\":\"Ok\",\"msg\":\"\"}"))
 	return
 }
-

@@ -194,7 +194,6 @@ func main() {
 	}
 }
 
-
 func startOOKOperator(log logr.Logger, cl client.Client) {
 	settings.Port = ":5000"
 	settings.DefaultsDir = "/workspace/ook-operator/settings/"

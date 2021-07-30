@@ -44,6 +44,5 @@ func main() {
 	}
 	settings.K8s = k8s
 
-
 	operator.Serve()
 }

@@ -17,13 +17,13 @@ limitations under the License.
 package helm
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
-	"encoding/json"
 
-	"github.com/kupenstack/kupenstack/ook-operator/settings"
 	pkg "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
+	"github.com/kupenstack/kupenstack/ook-operator/settings"
 )
 
 func Apply(w http.ResponseWriter, r *http.Request) {
@@ -52,8 +52,6 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-
-
 func Status(w http.ResponseWriter, r *http.Request) {
 	log := settings.Log.WithValues("action", "status-helm")
 
@@ -81,7 +79,7 @@ func Status(w http.ResponseWriter, r *http.Request) {
 		log.Error(err, "")
 		http.Error(w, http.StatusText(http.StatusInternalServerError),
 			http.StatusInternalServerError)
-		return	    
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

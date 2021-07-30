@@ -17,12 +17,12 @@ limitations under the License.
 package actions
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"net/http"
-	"context"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -122,7 +122,6 @@ func PrepareOOKValues(r *http.Request, filenames []string) error {
 	return nil
 }
 
-
 type Status struct {
 
 	// Status can have values:
@@ -131,9 +130,8 @@ type Status struct {
 	// * Error      {Error from user, contains message for user as hint}
 	// * InProgress {}
 	Status string `json:"status"`
-	Msg string `json:"msg"`
+	Msg    string `json:"msg"`
 }
-
 
 func StatusByPodLabel(label string) ([]byte, error) {
 
@@ -148,7 +146,7 @@ func StatusByPodLabel(label string) ([]byte, error) {
 	for _, pod := range pods.Items {
 
 		temp := podStatus(pod)
-		if temp.Status == "NotOk"{
+		if temp.Status == "NotOk" {
 			status = temp
 			break
 		}
@@ -167,7 +165,6 @@ func StatusByPodLabel(label string) ([]byte, error) {
 	}
 	return statusStr, nil
 }
-
 
 func podStatus(pod corev1.Pod) Status {
 
@@ -193,19 +190,17 @@ func podStatus(pod corev1.Pod) Status {
 					break
 				}
 
-				if container.State.Terminated != nil && container.State.Terminated.Reason != "Completed"{
+				if container.State.Terminated != nil && container.State.Terminated.Reason != "Completed" {
 					state = "NotOk"
 					break
 				}
 			}
-			
 
 		}
 	}
 
 	return Status{Status: state}
 }
-
 
 // func GetClient(configFile string) (*kubernetes.Clientset, error) {
 // 	var config *rest.Config

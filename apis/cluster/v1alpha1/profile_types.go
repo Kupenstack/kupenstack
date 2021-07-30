@@ -20,7 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-
 type ConfFile struct{}
 
 type ProfileSpec struct {
@@ -28,7 +27,6 @@ type ProfileSpec struct {
 	// Name of parent profile to inherit this profile from.
 	// + optional
 	From string `json:"from,omitempty"`
-
 
 	// +kubebuilder:pruning:PreserveUnknownFields
 	GlanceApiConf ConfFile `json:"glanceApiConf,omitempty"`
@@ -53,9 +51,6 @@ type ProfileSpec struct {
 
 	// +kubebuilder:pruning:PreserveUnknownFields
 	GlanceSwiftStoreConf ConfFile `json:"glanceSwiftStoreConf,omitempty"`
-
-
-
 
 	// +kubebuilder:pruning:PreserveUnknownFields
 	NeutronApiPasteConf ConfFile `json:"neutronApiPasteConf,omitempty"`
@@ -90,8 +85,6 @@ type ProfileSpec struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	NeutronSriovAgentConf ConfFile `json:"neutronSriovAgentConf,omitempty"`
 
-
-
 	// +kubebuilder:pruning:PreserveUnknownFields
 	NovaApiPasteConf ConfFile `json:"novaApiPasteConf,omitempty"`
 
@@ -107,8 +100,6 @@ type ProfileSpec struct {
 	// +kubebuilder:pruning:PreserveUnknownFields
 	NovaApiAuditMapConf ConfFile `json:"novaApiAuditMapConf,omitempty"`
 }
-
-
 
 type ProfileStatus struct {
 

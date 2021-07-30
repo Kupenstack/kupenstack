@@ -20,15 +20,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-
 // +kubebuilder:validation:Enum=compute;control
 type NodeType string
 
 const (
-	Compute  NodeType = "compute"
-	Control  NodeType = "control"
+	Compute NodeType = "compute"
+	Control NodeType = "control"
 )
-
 
 type NodeProfile struct {
 
@@ -42,7 +40,7 @@ type NodeProfile struct {
 
 	// Type of node: "control" or "compute"
 	// +optional
-	// +kubebuilder:default=compute	
+	// +kubebuilder:default=compute
 	Type NodeType `json:"type,omitempty"`
 
 	// Default value is false. To remove node from cluster set disabled to true.
@@ -50,9 +48,7 @@ type NodeProfile struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-
 type OOKClusterSpec struct {
-
 	Profile string `json:"profile,omitempty"`
 
 	// By default all kubernetes nodes are part of OpenStack cluster with
@@ -62,9 +58,7 @@ type OOKClusterSpec struct {
 	// Nodes []NodeProfile `json:"nodes,omitempty"`
 }
 
-
 type OOKClusterStatus struct {
-
 	Status string `json:"status,omitempty"`
 }
 

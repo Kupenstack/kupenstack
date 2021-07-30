@@ -56,7 +56,7 @@ func newClient(config *gophercloud.AuthOptions) (*Client, error) {
 	}
 
 	c := &Client{
-		provider: providerClient,
+		provider:   providerClient,
 		clientList: make(map[string]*gophercloud.ServiceClient),
 	}
 

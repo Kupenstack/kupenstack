@@ -7,9 +7,9 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - kupenstack.io
+  - cluster.kupenstack.io
   resources:
-  - flavors
+  - profiles
   verbs:
   - create
   - delete
@@ -19,15 +19,15 @@ rules:
   - update
   - watch
 - apiGroups:
-  - kupenstack.io
+  - cluster.kupenstack.io
   resources:
-  - flavors/finalizers
+  - profiles/finalizers
   verbs:
   - update
 - apiGroups:
-  - kupenstack.io
+  - cluster.kupenstack.io
   resources:
-  - flavors/status
+  - profiles/status
   verbs:
   - get
   - patch

@@ -22,9 +22,9 @@ import (
 
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/cluster"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/glance"
+	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/helm"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/horizon"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/ingress"
-	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/helm"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/keystone"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/libvirt"
 	"github.com/kupenstack/kupenstack/ook-operator/pkg/actions/mariadb"
@@ -46,7 +46,7 @@ func Serve() {
 	r.HandleFunc("/helm/status", helm.Status)
 
 	r.HandleFunc("/cluster/apply", cluster.Apply)
-	
+
 	r.HandleFunc("/glance/apply", glance.Apply)
 	r.HandleFunc("/glance/status", glance.Status)
 

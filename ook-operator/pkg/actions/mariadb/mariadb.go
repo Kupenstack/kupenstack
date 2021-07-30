@@ -49,7 +49,6 @@ func Apply(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-
 func Status(w http.ResponseWriter, r *http.Request) {
 	log := settings.Log.WithValues("action", "status-helm")
 

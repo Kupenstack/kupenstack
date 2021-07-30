@@ -17,47 +17,55 @@ limitations under the License.
 package cluster
 
 import (
+	"bytes"
 	"context"
-	"net/http"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/tools/record"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"github.com/gophercloud/gophercloud"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	kstypes "github.com/kupenstack/kupenstack/apis/cluster/v1alpha1"
+	ook "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
-	ook "github.com/kupenstack/kupenstack/ook-operator/pkg/actions"
 )
 
-
-const(
-	Healthy = "Healthy"
-	Unhealthy = "Unhealthy"
-	HelmSteupInProgress = "HelmSteupInProgress"
-	IngressSteupInProgress = "IngressSteupInProgress"
-	MariadbSteupInProgress = "MariadbSteupInProgress"
-	RabbitMQSteupInProgress = "RabbitMQSteupInProgress"
-	MemcachedSteupInProgress = "MemcachedSteupInProgress"
-	KeystoneSteupInProgress = "KeystoneSteupInProgress"
-	HorizonSteupInProgress = "HorizonSteupInProgress"
-	GlanceSteupInProgress = "GlanceSteupInProgress"
+const (
+	Healthy                   = "Healthy"
+	Unhealthy                 = "Unhealthy"
+	HelmSteupInProgress       = "HelmSteupInProgress"
+	IngressSteupInProgress    = "IngressSteupInProgress"
+	MariadbSteupInProgress    = "MariadbSteupInProgress"
+	RabbitMQSteupInProgress   = "RabbitMQSteupInProgress"
+	MemcachedSteupInProgress  = "MemcachedSteupInProgress"
+	KeystoneSteupInProgress   = "KeystoneSteupInProgress"
+	HorizonSteupInProgress    = "HorizonSteupInProgress"
+	GlanceSteupInProgress     = "GlanceSteupInProgress"
 	ComputeKitSteupInProgress = "ComputeKitSteupInProgress"
 )
 
 // Reconciler reconciles a OOK Cluster
 type Reconciler struct {
 	client.Client
-	OS     *openstack.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	OS            *openstack.Client
+	Log           logr.Logger
+	Scheme        *runtime.Scheme
 	EventRecorder record.EventRecorder
 }
 
@@ -81,38 +89,38 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	if status != cr.Status.Status {
 		cr.Status.Status = status
 		err = r.Status().Update(ctx, &cr)
-		return ctrl.Result{RequeueAfter: 2*time.Second}, err
+		return ctrl.Result{RequeueAfter: 2 * time.Second}, err
 	}
 
 	if status == Unhealthy {
-		err := r.Update(ctx, req)
-		return ctrl.Result{RequeueAfter: 8*time.Second}, err
+		err := r.Update(ctx, cr)
+		return ctrl.Result{RequeueAfter: 8 * time.Second}, err
 	}
 
 	if status == Healthy {
 
 		// prepare client
 		_, err := r.OS.GetClient("compute")
-		if err != nil && err.Error() == openstack.MsgConnectionFailed {	
+		if err != nil && err.Error() == openstack.MsgConnectionFailed {
 
 			opts := &gophercloud.AuthOptions{
-					  	IdentityEndpoint: "http://keystone.kupenstack.svc.cluster.local/v3",
-					  	Username: "admin",
-					  	Password: "password",
-					  	DomainName: "Default",
-					  	TenantName: "admin",
-					}
+				IdentityEndpoint: "http://keystone.kupenstack.svc.cluster.local/v3",
+				Username:         "admin",
+				Password:         "password",
+				DomainName:       "Default",
+				TenantName:       "admin",
+			}
 			newClient, err := openstack.New(opts)
-			if err != nil{
+			if err != nil {
 				return ctrl.Result{}, err
 			}
 			*r.OS = *newClient
 		}
 
-		return ctrl.Result{RequeueAfter: 3*time.Second}, nil
+		return ctrl.Result{RequeueAfter: 3 * time.Second}, nil
 	}
 
-	return ctrl.Result{RequeueAfter: 3*time.Second}, nil
+	return ctrl.Result{RequeueAfter: 3 * time.Second}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -127,7 +135,6 @@ func (r *Reconciler) Eventf(cr metav1.Object, eventtype, reason, messageFmt stri
 	return k8s.RecordEventf(r.EventRecorder, cr, r.Scheme,
 		eventtype, reason, fmt.Sprintf(messageFmt, args...))
 }
-
 
 func getComponentStatus(component string) (string, error) {
 
@@ -147,7 +154,7 @@ func getComponentStatus(component string) (string, error) {
 
 		switch component {
 		case "helm":
-			status = HelmSteupInProgress	
+			status = HelmSteupInProgress
 		case "ingress":
 			status = IngressSteupInProgress
 		case "mariadb":
@@ -241,86 +248,179 @@ func GetStatus() (string, error) {
 		return status, err
 	}
 
-	return Healthy, nil 
+	return Healthy, nil
 }
 
-func updateComponent(component string) error {
+func (r *Reconciler) getProfile(ctx context.Context, cr kstypes.OOKCluster) (*unstructured.Unstructured, error) {
 
-	resp, err := http.Get(fmt.Sprintf("http://localhost:5000/%v/apply", component))
+	profileName := ""
+	profileNamespace := ""
+
+	// Predict Name/Namespace of profile based on FQDN name provided.
+	profileFQDN := strings.Split(cr.Spec.Profile, ".")
+	if len(profileFQDN) == 1 {
+
+		profileName = profileFQDN[0]
+		profileNamespace = cr.Namespace
+
+	} else {
+		profileName = strings.Join(profileFQDN[:len(profileFQDN)-1], ".")
+		profileNamespace = profileFQDN[len(profileFQDN)-1]
+		ns := &corev1.Namespace{}
+		err := r.Get(ctx, types.NamespacedName{Name: profileNamespace}, ns)
+		if err != nil && errors.IsNotFound(err) {
+			// Maybe profile is in same namespace
+			profileNamespace = cr.Namespace
+			profileName = cr.Spec.Profile
+		}
+	}
+
+	// Get profile data
+	profile := &unstructured.Unstructured{}
+	profile.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "cluster.kupenstack.io",
+		Kind:    "Profile",
+		Version: "v1alpha1",
+	})
+	err := r.Get(ctx, types.NamespacedName{Name: profileName, Namespace: profileNamespace}, profile)
+	if err != nil {
+
+		if errors.IsNotFound(err) {
+			r.Eventf(&cr, corev1.EventTypeWarning, "ProfileNotFound",
+				"Profile having name %v not found in namespace %v.", profileName, profileNamespace)
+		}
+		return nil, err
+	}
+
+	return profile, nil
+}
+
+func (r *Reconciler) getDesiredState(ctx context.Context, cr kstypes.OOKCluster, component string) (string, error) {
+
+	profile, err := r.getProfile(ctx, cr)
+	if err != nil {
+		return "", err
+	}
+
+	var config map[string]interface{}
+
+	switch component {
+	case "glance":
+		config = getGlanceDesiredState(profile)
+	case "nova":
+		config = getNovaDesiredState(profile)
+	case "neutron":
+		config = getNeutronDesiredState(profile)
+	default:
+		return "", fmt.Errorf("Unknown Component")
+	}
+
+	configStr, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	yamlData, err := yaml.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	return string(configStr), nil
+}
+
+func updateComponent(component string, conf string) error {
+
+	resp, err := http.Post(fmt.Sprintf("http://localhost:5000/%v/apply", component), "application/json",
+		bytes.NewBuffer([]byte(conf)))
 	if err != nil {
 		return err
 	}
-	
+
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("OOKOperator: %v apply request failed.", component)
 	}
-	
+
 	return nil
 }
 
-func (r *Reconciler) Update(ctx context.Context, req ctrl.Request) error {
+func (r *Reconciler) Update(ctx context.Context, cr kstypes.OOKCluster) error {
 
 	resp, err := http.Get("http://localhost:5000/cluster/apply")
-	if err != nil  || resp.StatusCode != http.StatusOK {
+	if err != nil || resp.StatusCode != http.StatusOK {
 		return err
 	}
 
 	status, err := getComponentStatus("helm")
 	if status == Unhealthy {
-		return updateComponent("helm")
+		return updateComponent("helm", "")
 	}
 
 	status, err = getComponentStatus("ingress")
 	if status == Unhealthy {
-		return updateComponent("ingress")
+		return updateComponent("ingress", "")
 	}
 
 	status, err = getComponentStatus("mariadb")
 	if status == Unhealthy {
-		return updateComponent("mariadb")
+		return updateComponent("mariadb", "")
 	}
 
 	status, err = getComponentStatus("rabbitmq")
 	if status == Unhealthy {
-		return updateComponent("rabbitmq")
+		return updateComponent("rabbitmq", "")
 	}
 
 	status, err = getComponentStatus("memcached")
 	if status == Unhealthy {
-		return updateComponent("memcached")
+		return updateComponent("memcached", "")
 	}
 
 	status, err = getComponentStatus("keystone")
 	if status == Unhealthy {
-		return updateComponent("keystone")
+		return updateComponent("keystone", "")
 	}
 
 	status, err = getComponentStatus("horizon")
 	if status == Unhealthy {
-		return updateComponent("horizon")
+		return updateComponent("horizon", "")
 	}
 
 	status, err = getComponentStatus("glance")
 	if status == Unhealthy {
-		return updateComponent("glance")
+
+		conf, err := r.getDesiredState(ctx, cr, "glance")
+		if err != nil {
+			return err
+		}
+
+		return updateComponent("glance", conf)
 	}
 
 	status, err = getComponentStatus("libvirt")
 	if status == Unhealthy {
-		err = updateComponent("libvirt")
+		err = updateComponent("libvirt", "")
 		if err != nil {
 			return err
 		}
-		err = updateComponent("placement")
+		err = updateComponent("placement", "")
 		if err != nil {
 			return err
 		}
-		err = updateComponent("nova")
+
+		conf, err := r.getDesiredState(ctx, cr, "nova")
 		if err != nil {
 			return err
 		}
-		return updateComponent("neutron")
+		err = updateComponent("nova", conf)
+		if err != nil {
+			return err
+		}
+
+		conf, err = r.getDesiredState(ctx, cr, "neutron")
+		if err != nil {
+			return err
+		}
+		return updateComponent("neutron", conf)
 	}
 	return nil
 }
-

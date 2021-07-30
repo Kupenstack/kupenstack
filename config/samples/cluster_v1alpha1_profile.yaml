@@ -22,3 +22,4 @@ spec:
       disk_allocation_ratio: 1.0
       cpu_allocation_ratio: 3.0
       linuxnet_interface_driver: openvswitch
+      instance_usage_audit: True
