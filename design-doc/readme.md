@@ -116,7 +116,7 @@ Please see existing design-docs as a reference. Design-docs are loosely written 
 
   ​	description: Describes default value of this field.
 
-*  explain datatype and other properties for these field we use key=value conventions in comment, for example:`scope`:
+*  `scope`:
 
   ​	values: Namespaced, Cluster
 
