@@ -116,7 +116,7 @@ Please see existing design-docs as a reference. Design-docs are loosely written 
 
   ​	description: Describes default value of this field.
 
-*  `scope`:
+* `scope`:
 
   ​	values: Namespaced, Cluster
 
