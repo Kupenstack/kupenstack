@@ -1,4 +1,0 @@
-pod:
-  replicas:
-    server: 1
-

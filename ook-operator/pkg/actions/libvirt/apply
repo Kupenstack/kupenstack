@@ -1,8 +1,0 @@
-#!/bin/bash
-
-make -C ${OSH_INFRA_PATH} libvirt
-
-helm upgrade --install libvirt ${OSH_INFRA_PATH}/libvirt \
-  --namespace=kupenstack \
-  --values=/etc/kupenstack/libvirt.yaml
-

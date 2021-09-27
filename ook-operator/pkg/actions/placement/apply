@@ -1,8 +1,0 @@
-#!/bin/bash
-
-make -C ${OSH_PATH} placement
-
-helm upgrade --install placement ${OSH_PATH}/placement \
-    --namespace=kupenstack \
-    --values=/etc/kupenstack/placement.yaml
-
