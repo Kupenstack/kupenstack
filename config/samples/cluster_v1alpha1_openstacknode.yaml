@@ -1,0 +1,13 @@
+apiVersion: cluster.kupenstack.io/v1alpha1
+kind: OpenstackNode
+metadata:
+  name: sample-node
+  labels:
+    node-role.kupenstack.io: control
+    node-role: control
+spec:
+  # Add fields here
+  openstackCloudConfigurationProfileRef:
+    name: sample-profile
+    namespace: default
+

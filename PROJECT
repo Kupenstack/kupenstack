@@ -48,10 +48,9 @@ resources:
 - api:
     crdVersion: v1
     namespaced: true
-  controller: true
   domain: kupenstack.io
   group: cluster
-  kind: Profile
+  kind: OpenStackCloudConfigurationProfile
   path: github.com/kupenstack/kupenstack/apis/cluster/v1alpha1
   version: v1alpha1
 - api:
@@ -60,7 +59,7 @@ resources:
   controller: true
   domain: kupenstack.io
   group: cluster
-  kind: OOKCluster
+  kind: OpenstackNode
   path: github.com/kupenstack/kupenstack/apis/cluster/v1alpha1
   version: v1alpha1
 version: "3"

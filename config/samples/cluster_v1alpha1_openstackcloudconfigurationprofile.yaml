@@ -1,0 +1,23 @@
+apiVersion: cluster.kupenstack.io/v1alpha1
+kind: OpenStackCloudConfigurationProfile
+metadata:
+  name: openstackcloudconfigurationprofile-sample
+spec:
+  from: occp2.default
+  keystone:
+    replicas:
+      api: 3
+  glance:
+    replicas:
+      registry: 0
+  horizon:
+    disable: true
+  nova:
+    conf:
+      nova:
+        DEFAULT:
+          cpu_allocation_ratio: 2.0
+  neutron:
+    replicas:
+      ironicAgent: 0
+

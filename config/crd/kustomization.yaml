@@ -9,6 +9,8 @@ resources:
 - bases/kupenstack.io_virtualmachines.yaml
 - bases/cluster.kupenstack.io_profiles.yaml
 - bases/cluster.kupenstack.io_ookclusters.yaml
+- bases/cluster.kupenstack.io_openstackcloudconfigurationprofiles.yaml
+- bases/cluster.kupenstack.io_openstacknodes.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
@@ -21,6 +23,8 @@ patchesStrategicMerge:
 #- patches/webhook_in_virtualmachines.yaml
 #- patches/webhook_in_profiles.yaml
 #- patches/webhook_in_ookclusters.yaml
+#- patches/webhook_in_openstackcloudconfigurationprofiles.yaml
+#- patches/webhook_in_openstacknodes.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable webhook, uncomment all the sections with [CERTMANAGER] prefix.
@@ -32,6 +36,8 @@ patchesStrategicMerge:
 #- patches/cainjection_in_virtualmachines.yaml
 #- patches/cainjection_in_profiles.yaml
 #- patches/cainjection_in_ookclusters.yaml
+#- patches/cainjection_in_openstackcloudconfigurationprofiles.yaml
+#- patches/cainjection_in_openstacknodes.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.
