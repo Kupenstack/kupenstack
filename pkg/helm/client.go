@@ -297,3 +297,19 @@ func isChartInstallable(ch *chart.Chart) (bool, error) {
 func debug(format string, v ...interface{}) {
 	_ = fmt.Sprintf("[debug] %s\n", format)
 }
+
+func GetRelease(name, namespace string) (*release.Release, error) {
+
+	releases, err := ListReleases(namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, releaseDetail := range releases {
+
+		if releaseDetail.Name == name {
+			return releaseDetail, nil
+		}
+	}
+	return nil, nil
+}

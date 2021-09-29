@@ -8,7 +8,6 @@ require (
 	github.com/go-logr/logr v0.4.0
 	github.com/gofrs/flock v0.8.0
 	github.com/gophercloud/gophercloud v0.17.0
-	github.com/gorilla/mux v1.8.0
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.15.0
 	github.com/pkg/errors v0.9.1
@@ -18,6 +17,5 @@ require (
 	k8s.io/apimachinery v0.22.2
 	k8s.io/apiserver v0.22.2
 	k8s.io/client-go v0.22.2
-	k8s.io/klog/v2 v2.9.0
 	sigs.k8s.io/controller-runtime v0.10.1
 )

@@ -21,53 +21,29 @@ import (
 )
 
 type OccpRef struct {
-
-	// +kubebuilder:validation:Required
-	Name string `json:"name"`
-
-	// +kubebuilder:validation:Required
+	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
 }
 
 type OpenstackNodeSpec struct {
 
 	// OpenStack Cloud Configuration Profile(OCCP) used by this node.
-	// +kubebuilder:validation:Required
 	Occp OccpRef `json:"openstackCloudConfigurationProfileRef"`
 }
 
 type OpenstackNodeStatus struct {
 
 	// Generated configration from OCCP.
-	// +kubebuilder:pruning:PreserveUnknownFields
-	DesiredNodeConfiguration ValuesFile `json:"desiredNodeConfiguration,omitempty"`
+	DesiredNodeConfiguration map[string]interface{} `json:"desiredNodeConfiguration,omitempty"`
 
 	// Status of OpenStack cluster components for this osknode.
 	Status string `json:"status,omitempty"`
 }
 
-// // +kubebuilder:printcolumn:name="STATUS",type="string",JSONPath=".status.status"
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="ROLES",type="string",JSONPath=".metadata.annotations.node-role"
-//+kubebuilder:printcolumn:name="PROFILE",type="string",JSONPath=".spec.openstackCloudConfigurationProfileRef.name"
-//+kubebuilder:resource:shortName={osknode,osknodes},scope=Cluster
 type OpenstackNode struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec   OpenstackNodeSpec   `json:"spec"`
 	Status OpenstackNodeStatus `json:"status,omitempty"`
-}
-
-//+kubebuilder:object:root=true
-
-type OpenstackNodeList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []OpenstackNode `json:"items"`
-}
-
-func init() {
-	SchemeBuilder.Register(&OpenstackNode{}, &OpenstackNodeList{})
 }

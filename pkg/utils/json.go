@@ -23,6 +23,10 @@ type json = map[string]interface{}
 // patches `changes` to `original`
 func PatchJson(original, changes json) json {
 
+	if original == nil {
+		return changes
+	}
+
 	for key, val := range changes {
 
 		if defaultVal, ok := original[key]; ok {

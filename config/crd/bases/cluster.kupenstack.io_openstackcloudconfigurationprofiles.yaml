@@ -55,12 +55,12 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       api:
-                        default: 1
+                        default: 0
                         description: Number of glance-api pods.
                         format: int32
                         type: integer
                       registry:
-                        default: 1
+                        default: 0
                         description: Number of glance-registry pods.
                         format: int32
                         type: integer
@@ -82,7 +82,7 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       server:
-                        default: 1
+                        default: 0
                         description: Number of horizon-server pods.
                         format: int32
                         type: integer
@@ -100,7 +100,7 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       api:
-                        default: 1
+                        default: 0
                         description: Number of keystone-api pods.
                         format: int32
                         type: integer
@@ -122,12 +122,12 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       ironicAgent:
-                        default: 1
+                        default: 0
                         description: Number of neutron-ironic-agent pods.
                         format: int32
                         type: integer
                       server:
-                        default: 1
+                        default: 0
                         description: Number of neutron-server pods.
                         format: int32
                         type: integer
@@ -148,27 +148,27 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       conductor:
-                        default: 1
+                        default: 0
                         description: Number of Nova conductor pods.
                         format: int32
                         type: integer
                       ironic:
-                        default: 1
+                        default: 0
                         description: Number of Nova ironic pods.
                         format: int32
                         type: integer
                       metadata:
-                        default: 1
+                        default: 0
                         description: Number of Nova api-metadata pods.
                         format: int32
                         type: integer
                       osapi:
-                        default: 1
+                        default: 0
                         description: Number of nova-api-osapi pods.
                         format: int32
                         type: integer
                       placement:
-                        default: 1
+                        default: 0
                         description: Number of Nova placement pods.
                         format: int32
                         type: integer
@@ -190,7 +190,7 @@ spec:
                     description: Configures number of replicas for each pods.
                     properties:
                       api:
-                        default: 1
+                        default: 0
                         description: Number of placement-api pods.
                         format: int32
                         type: integer

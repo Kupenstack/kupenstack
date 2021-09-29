@@ -1,0 +1,13 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: KupenstackConfiguration
+metadata:
+  name: configfile
+spec:
+  defaultProfile:
+    name: occp
+    namespace: default
+
+  # List of k8s nodes to disable for osk cluster.
+  nodes:
+    - name: kind-control-plane
+      type: control,compute

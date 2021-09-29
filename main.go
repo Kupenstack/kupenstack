@@ -31,8 +31,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/gophercloud/gophercloud"
-
 	clusterv1alpha1 "github.com/kupenstack/kupenstack/apis/cluster/v1alpha1"
 	kupenstackiov1alpha1 "github.com/kupenstack/kupenstack/apis/v1alpha1"
 
@@ -94,24 +92,13 @@ func main() {
 	}
 
 	go oskops.ManageOskNodes(mgr.GetClient(), kupenstackConfigurationFile)
+	go oskops.Start(mgr.GetClient(), kupenstackConfigurationFile)
 
 	///// Temporary code
 
 	OSclient := &openstack.Client{}
-	gopheropts := &gophercloud.AuthOptions{
-		IdentityEndpoint: "http://keystone.kupenstack.svc.cluster.local/v3",
-		Username:         "admin",
-		Password:         "password",
-		DomainName:       "Default",
-		TenantName:       "admin",
-	}
-	newClient, err := openstack.New(gopheropts)
-	if err != nil {
-		setupLog.Error(err, "unable to start manager")
-		os.Exit(1)
-	}
-	OSclient = newClient
-
+	go oskops.AuthenticateOpenstackClient(OSclient)
+	
 	//////////////////////////
 
 	if err = (&project.Reconciler{

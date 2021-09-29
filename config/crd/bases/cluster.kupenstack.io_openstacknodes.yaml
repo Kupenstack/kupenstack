@@ -20,9 +20,6 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .status.status
-      name: STATUS
-      type: string
     - jsonPath: .metadata.annotations.node-role
       name: ROLES
       type: string
@@ -32,6 +29,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
+        description: // +kubebuilder:printcolumn:name="STATUS",type="string",JSONPath=".status.status"
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
