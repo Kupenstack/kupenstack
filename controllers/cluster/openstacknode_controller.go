@@ -63,7 +63,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	if err != nil {
 		if errors.IsNotFound(err) {
 			r.Eventf(&cr, corev1.EventTypeWarning, "OCCPNotFound",
-				"OpenstackCloudConfigurationProfile having name %s not found in namespace %s.", cr.Spec.Occp.Name, cr.Spec.Occp.Namespace)
+				"Required OpenstackCloudConfigurationProfiles not found for osknode %s.", cr.Name)
 		}
 		return ctrl.Result{RequeueAfter: 20000000000}, err
 	}
@@ -91,6 +91,14 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{RequeueAfter: 20000000000}, err
 	}
 
+	// get list of desired nodelabels from this osknodes
+	// and add them to k8snodes.
+	labels := getRequiredLables(osknode)
+	err = r.addLabelsToK8sNode(ctx, req.NamespacedName, labels)
+	if err != nil {
+		return ctrl.Result{RequeueAfter: 20000000000}, err
+	}
+
 	return ctrl.Result{RequeueAfter: 20000000000}, nil
 }
 
@@ -107,6 +115,94 @@ func (r *Reconciler) Eventf(cr metav1.Object, eventtype, reason, messageFmt stri
 		eventtype, reason, fmt.Sprintf(messageFmt, args...))
 }
 
+func (r *Reconciler) addLabelsToK8sNode(ctx context.Context, name types.NamespacedName, labels map[string]string) error {
+
+	var cr corev1.Node
+	err := r.Get(ctx, name, &cr)
+	if err != nil {
+		return err
+	}
+
+	for key, value := range labels {
+		cr.Labels[key] = value
+	}
+
+	return r.Update(ctx, &cr)
+}
+
+func getRequiredLables(osknode *unstructured.Unstructured) map[string]string {
+
+	labels := make(map[string]string)
+	labels["openstack-control-plane"] = ""
+	labels["openstack-compute-node"] = ""
+
+	// node role
+	metadata := osknode.Object["metadata"].(map[string]interface{})
+	annotations := metadata["annotations"].(map[string]interface{})
+	if annotations["node-role"] != nil {
+		roles := strings.Split(annotations["node-role"].(string), ",")
+
+		for _, role := range roles {
+			role = strings.TrimSpace(role)
+			if role == "control" {
+				labels["openstack-control-plane"] = "enabled"
+			}
+			if role == "compute" {
+				labels["openstack-compute-node"] = "enabled"
+			}
+		}
+	}
+
+	// profile name
+	spec := osknode.Object["spec"].(map[string]interface{})
+	occp := spec["openstackCloudConfigurationProfileRef"].(map[string]interface{})
+	name := occp["name"].(string)
+	namespace := occp["namespace"].(string)
+	labels["kupenstack-occp"] = name + "." + namespace
+
+	// invidual openstack component is enabled or not
+	status := osknode.Object["status"].(map[string]interface{})
+	if status["desiredNodeConfiguration"] != nil {
+		cfg := status["desiredNodeConfiguration"].(map[string]interface{})
+
+		key, value := isEnabledLabel(cfg, "keystone")
+		labels[key] = value
+		key, value = isEnabledLabel(cfg, "glance")
+		labels[key] = value
+		key, value = isEnabledLabel(cfg, "horizon")
+		labels[key] = value
+		key, value = isEnabledLabel(cfg, "nova")
+		labels[key] = value
+		key, value = isEnabledLabel(cfg, "neutron")
+		labels[key] = value
+		key, value = isEnabledLabel(cfg, "placement")
+		labels[key] = value
+	}
+
+	// TODO: manage labels for linux-bridge, openvswitch
+	// temporary fix:
+	labels["linuxbridge"] = "enabled"
+
+	return labels
+}
+
+func isEnabledLabel(cfg map[string]interface{}, componentName string) (string, string) {
+	labelKey := "kupenstack-" + componentName
+	labelValue := ""
+
+	if cfg[componentName] != nil {
+		componentDetails := cfg[componentName].(map[string]interface{})
+
+		if componentDetails["disable"] != nil {
+			if !componentDetails["disable"].(bool) {
+				labelValue = "enabled"
+			}
+		}
+	}
+
+	return labelKey, labelValue
+}
+
 func (r *Reconciler) getProfileData(ctx context.Context, name, namespace string) (map[string]interface{}, error) {
 
 	occp := &unstructured.Unstructured{}
@@ -116,6 +212,12 @@ func (r *Reconciler) getProfileData(ctx context.Context, name, namespace string)
 		Version: "v1alpha1",
 	})
 	err := r.Get(ctx, types.NamespacedName{Name: name, Namespace: namespace}, occp)
+	if err != nil {
+		return nil, err
+	}
+	if occp.Object["spec"] == nil {
+		return nil, nil
+	}
 	data := occp.Object["spec"].(map[string]interface{})
 	return data, err
 }
@@ -168,6 +270,9 @@ func (r *Reconciler) generateProfileData(ctx context.Context, name, namespace st
 	}
 
 	parentData, err := r.generateProfileData(ctx, name, namespace)
+	if err != nil {
+		return nil, err
+	}
 	return utils.PatchJson(parentData, data), err
 }
 
@@ -202,6 +307,9 @@ func (r *Reconciler) generateDesiredNodeConfiguration(ctx context.Context, name,
 	data, err := r.generateProfileData(ctx, name, namespace)
 	if err != nil {
 		return nil, err
+	}
+	if data == nil {
+		return nil, nil
 	}
 
 	data["keystone"], err = transformKeys(data["keystone"])

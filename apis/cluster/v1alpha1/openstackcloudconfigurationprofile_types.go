@@ -25,9 +25,9 @@ type ValuesFile struct{}
 type KeystoneReplicas struct {
 
 	// Number of keystone-api pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Api int32 `json:"api"`
+	Api int32 `json:"api,omitempty"`
 }
 
 type KeystoneConfiguration struct {
@@ -44,9 +44,9 @@ type KeystoneConfiguration struct {
 type HorizonReplicas struct {
 
 	// Number of horizon-server pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Server int32 `json:"server"`
+	Server int32 `json:"server,omitempty"`
 }
 
 type HorizonConfiguration struct {
@@ -67,14 +67,14 @@ type HorizonConfiguration struct {
 type GlanceReplicas struct {
 
 	// Number of glance-api pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Api int32 `json:"api"`
+	Api int32 `json:"api,omitempty"`
 
 	// Number of glance-registry pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Registry int32 `json:"registry"`
+	Registry int32 `json:"registry,omitempty"`
 }
 
 type GlanceConfiguration struct {
@@ -95,29 +95,29 @@ type GlanceConfiguration struct {
 type NovaReplicas struct {
 
 	// Number of Nova api-metadata pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Metadata int32 `json:"metadata"`
+	Metadata int32 `json:"metadata,omitempty"`
 
 	// Number of Nova ironic pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Ironic int32 `json:"ironic"`
+	Ironic int32 `json:"ironic,omitempty"`
 
 	// Number of Nova placement pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Placement int32 `json:"placement"`
+	Placement int32 `json:"placement,omitempty"`
 
 	// Number of nova-api-osapi pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Osapi int32 `json:"osapi"`
+	Osapi int32 `json:"osapi,omitempty"`
 
 	// Number of Nova conductor pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Conductor int32 `json:"conductor"`
+	Conductor int32 `json:"conductor,omitempty"`
 }
 
 type NovaConfiguration struct {
@@ -138,14 +138,14 @@ type NovaConfiguration struct {
 type NeutronReplicas struct {
 
 	// Number of neutron-server pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Server int32 `json:"server"`
+	Server int32 `json:"server,omitempty"`
 
 	// Number of neutron-ironic-agent pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	IronicAgent int32 `json:"ironicAgent"`
+	IronicAgent int32 `json:"ironicAgent,omitempty"`
 }
 
 type NeutronConfiguration struct {
@@ -166,9 +166,9 @@ type NeutronConfiguration struct {
 type PlacementReplicas struct {
 
 	// Number of placement-api pods.
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +optional
-	Api int32 `json:"api"`
+	Api int32 `json:"api,omitempty"`
 }
 
 type PlacementConfiguration struct {
