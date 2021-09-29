@@ -18,6 +18,7 @@ spec:
     replicas:
       osapi: 1
       conductor: 1
+      metadata: 1
     conf:
       ceph:
         enabled: false
