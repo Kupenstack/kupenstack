@@ -37,7 +37,7 @@ Note: You can try this demo in a VM on any public cloud like AWS, GCP, If you do
 First we need to install the required crds for Kupenstack.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/814a4f48e1c1266ef83e32e45cc3a1d5d3319fea/config/demo2/crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/main/config/demo2/crds.yaml
 ```
 
 **Create kupenstack-config**
@@ -45,7 +45,7 @@ kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/814a4f4
 Before deploying KupenStack we need to deploy its configurations as configmap into the cluster. The following is a sample configuration file:
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/814a4f48e1c1266ef83e32e45cc3a1d5d3319fea/config/demo2/config.yaml
+kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/main/config/demo2/config.yaml
 ```
 
 ```yaml
@@ -77,7 +77,7 @@ This is a pretty straightforward configuration. Here we have said that the defau
 We can configure OpenStack cluster using `OpenstackCloudConfigurationProfile`(Occp) Crds. An Occp is required before creating an OpenStack cluster.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/814a4f48e1c1266ef83e32e45cc3a1d5d3319fea/config/demo2/occp.yaml
+kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/main/config/demo2/occp.yaml
 ```
 
 ```yaml
@@ -101,6 +101,7 @@ spec:
     replicas:
       osapi: 1
       conductor: 1
+      metadata: 1
     conf:
       ceph:
         enabled: false
@@ -122,7 +123,6 @@ spec:
   placement:
     replicas:
       api: 1
-
 ```
 
 **Installing Kupenstack**
@@ -130,7 +130,7 @@ spec:
 Now, as a final step, we can install KupenStack.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/814a4f48e1c1266ef83e32e45cc3a1d5d3319fea/config/demo2/kupenstack-controller-manager.yaml
+kubectl apply -f https://raw.githubusercontent.com/Kupenstack/kupenstack/main/config/demo2/kupenstack-controller-manager.yaml
 ```
 
 As soon as Kupenstack starts it will first look at KupenstackConfiguration and k8s cluster to create required `OpenstackNode` objects. (Try `kubectl get osknodes`). Next, these various controllers in Kupenstack will try to spin up an Openstack cluster.
