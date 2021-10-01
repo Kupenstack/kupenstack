@@ -15,7 +15,7 @@ It provides CRDs to declaratively deploy, manage, and scale OpenStack resources 
 
 ## First look 20 min hands-on:raised_hands:
 
-Try KupenStack right now with our :coffee: [quickstart tutorial](config/demo2/readme.md). You need a laptop:computer: with docker:whale: & 12Gb memory.
+Try KupenStack right now with our :coffee: [quickstart tutorial](config/demo2/). You need a laptop:computer: with docker:whale: & 12Gb memory.
 
 https://user-images.githubusercontent.com/28928589/121054295-d7f63680-c7d9-11eb-9c25-f80ffa4cad4d.mp4
 
