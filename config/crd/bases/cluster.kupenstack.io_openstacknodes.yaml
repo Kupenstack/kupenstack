@@ -63,9 +63,12 @@ spec:
           status:
             properties:
               desiredNodeConfiguration:
-                description: Generated configration from OCCP.
+                description: Generated configuration from OCCP.
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
+              generated:
+                description: Whether configuration is generated or not.
+                type: boolean
               status:
                 description: Status of OpenStack cluster components for this osknode.
                 type: string

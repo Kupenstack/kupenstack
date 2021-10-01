@@ -327,4 +327,4 @@ We can cross-verify our above deployments in Horizon also, Go to port `32020 ` o
 
 Now, you can login and check, (Credentials are: Domain: "default", user: "admin", password: "password")
 
-![img](../demo/horizon-screenshot.png)
+![img](./horizon-screenshot.png)

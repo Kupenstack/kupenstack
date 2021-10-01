@@ -98,7 +98,7 @@ func main() {
 
 	OSclient := &openstack.Client{}
 	go oskops.AuthenticateOpenstackClient(OSclient)
-	
+
 	//////////////////////////
 
 	if err = (&project.Reconciler{

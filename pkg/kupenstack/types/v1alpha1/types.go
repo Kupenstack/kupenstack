@@ -33,6 +33,9 @@ type OpenstackNodeSpec struct {
 
 type OpenstackNodeStatus struct {
 
+	// Whether configuration is generated or not.
+	Generated bool `json:"generated,omitempty"`
+
 	// Generated configration from OCCP.
 	DesiredNodeConfiguration map[string]interface{} `json:"desiredNodeConfiguration,omitempty"`
 

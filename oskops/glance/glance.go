@@ -45,6 +45,7 @@ func reconcile(c client.Client, profilename string) (bool, error) {
 		return false, err
 	}
 
+	nodesReady := false
 	vals := make(map[string]interface{})
 	for _, n := range osknodeList.Items {
 		oskNode, err := osknode.AsStruct(&n)
@@ -54,12 +55,19 @@ func reconcile(c client.Client, profilename string) (bool, error) {
 
 		occp := oskNode.Spec.Occp.Name + "." + oskNode.Spec.Occp.Namespace
 		if occp == profilename {
+
+			nodesReady = oskNode.Status.Generated
+
 			if oskNode.Status.DesiredNodeConfiguration != nil {
 				if oskNode.Status.DesiredNodeConfiguration["glance"] != nil {
 					vals = oskNode.Status.DesiredNodeConfiguration["glance"].(map[string]interface{})
 				}
 			}
 		}
+	}
+
+	if nodesReady == false {
+		return false, nil
 	}
 
 	vals["storage"] = "pvc"

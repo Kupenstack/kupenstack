@@ -33,6 +33,8 @@ import (
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	clusterv1alpha1 "github.com/kupenstack/kupenstack/apis/cluster/v1alpha1"
 	"github.com/kupenstack/kupenstack/pkg/k8s"
@@ -84,6 +86,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		status = osknode.Object["status"].(map[string]interface{})
 	}
 	status["desiredNodeConfiguration"] = generatedCfg
+	status["generated"] = true
 	osknode.Object["status"] = status
 
 	err = r.Status().Update(ctx, osknode)
@@ -106,6 +109,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&clusterv1alpha1.OpenstackNode{}).
+		Watches(&source.Kind{Type: &clusterv1alpha1.OpenStackCloudConfigurationProfile{}}, &handler.EnqueueRequestForObject{}).
 		Complete(r)
 }
 

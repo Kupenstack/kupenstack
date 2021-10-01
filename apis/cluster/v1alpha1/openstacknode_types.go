@@ -38,7 +38,10 @@ type OpenstackNodeSpec struct {
 
 type OpenstackNodeStatus struct {
 
-	// Generated configration from OCCP.
+	// Whether configuration is generated or not.
+	Generated bool `json:"generated,omitempty"`
+
+	// Generated configuration from OCCP.
 	// +kubebuilder:pruning:PreserveUnknownFields
 	DesiredNodeConfiguration ValuesFile `json:"desiredNodeConfiguration,omitempty"`
 
