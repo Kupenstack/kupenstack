@@ -23,7 +23,7 @@ https://user-images.githubusercontent.com/28928589/121054295-d7f63680-c7d9-11eb-
 
 <span style="color:#555">*Be our Angel*</span>:angel:
 
-KupenStack is a community-driven project and we welcome you to participate and contribute at your flexibility.
+KupenStack is a community-driven project and we welcome you to participate and contribute at your flexibility. Please see our [contributing guidelines](CONTRIBUTING.md) to get started.
 
 ## Get Involved​ ​​
 
