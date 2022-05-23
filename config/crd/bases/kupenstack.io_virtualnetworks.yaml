@@ -1,0 +1,111 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: virtualnetworks.kupenstack.io
+spec:
+  group: kupenstack.io
+  names:
+    kind: VirtualNetwork
+    listKind: VirtualNetworkList
+    plural: virtualnetworks
+    shortNames:
+    - vn
+    singular: virtualnetwork
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.cidr
+      name: CIDR
+      priority: 1
+      type: string
+    - jsonPath: .status.gatewayName
+      name: GATEWAY
+      type: string
+    - jsonPath: .spec.gatewayIP
+      name: GATEWAY-IP
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: VirtualNetwork is the Schema for the virtualnetworks API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: VirtualNetworkSpec defines the desired state of VirtualNetwork
+            properties:
+              allocationPools:
+                description: AllocationPools are a way of telling DHCP agent what
+                  IP to use from the cidr block.
+                items:
+                  properties:
+                    endIP:
+                      type: string
+                    startIP:
+                      type: string
+                  type: object
+                type: array
+              cidr:
+                description: CIDR block to use for this private network in IPv4 or
+                  IPv6.
+                type: string
+              disableDhcp:
+                description: Does not creates DHCP agent in this network when true.
+                type: boolean
+              gatewayIP:
+                description: Statically defined the IP that gateway(router) should
+                  be given in this network.
+                type: string
+              mtu:
+                description: The maximum transmission unit(MTU) value to address fragementation.
+                format: int32
+                type: integer
+            type: object
+          status:
+            description: VirtualNetworkStatus defines the observed state of VirtualNetwork
+            properties:
+              gatewayName:
+                default: none
+                description: Name of the virtualrouter that this virtualnetwork is
+                  connected to.
+                type: string
+              id:
+                description: Unique Id at openstack
+                type: string
+              ready:
+                description: Whether virtual network is ready for use or not
+                type: boolean
+            required:
+            - gatewayName
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

@@ -41,6 +41,7 @@ import (
 	"github.com/kupenstack/kupenstack/controllers/network"
 	"github.com/kupenstack/kupenstack/controllers/project"
 	"github.com/kupenstack/kupenstack/controllers/vm"
+	"github.com/kupenstack/kupenstack/controllers/vn"
 	"github.com/kupenstack/kupenstack/oskops"
 	"github.com/kupenstack/kupenstack/pkg/openstack"
 	//+kubebuilder:scaffold:imports
@@ -169,6 +170,16 @@ func main() {
 		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "OpenstackNode")
+		os.Exit(1)
+	}
+	if err = (&vn.Reconciler{
+		Client:        mgr.GetClient(),
+		OS:            OSclient,
+		Log:           ctrl.Log.WithName("controllers").WithName("VirtualNetwork"),
+		Scheme:        mgr.GetScheme(),
+		EventRecorder: mgr.GetEventRecorderFor("kupenstack-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "VirtualNetwork")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

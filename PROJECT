@@ -62,4 +62,12 @@ resources:
   kind: OpenstackNode
   path: github.com/kupenstack/kupenstack/apis/cluster/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kupenstack.io
+  kind: VirtualNetwork
+  path: github.com/kupenstack/kupenstack/apis/v1alpha1
+  version: v1alpha1
 version: "3"

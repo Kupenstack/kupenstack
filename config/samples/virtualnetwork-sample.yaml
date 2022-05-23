@@ -1,0 +1,10 @@
+apiVersion: kupenstack.io/v1alpha1
+kind: VirtualNetwork
+metadata:
+  name: virtualnetwork-sample
+spec:
+  allocationPools:
+    - startIP: 10.*.*.56
+      endIP: 10.*.*.125
+  mtu: 1200
+  # cidr: 10.10.10.1/24
