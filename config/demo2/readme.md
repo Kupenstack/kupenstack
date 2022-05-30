@@ -21,7 +21,7 @@ For this demo, we will use KinD tool to create cluster, although any Kubernetes 
     </p><br>
     <p>
         <b>Now create cluster:</b><br>
-        <code>kind create cluster --image kindest/node:v1.19.1</code>
+        <code>kind create cluster --image kindest/node:v1.21.1</code>
     </p>
 </details>
 
